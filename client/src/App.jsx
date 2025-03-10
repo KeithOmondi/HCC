@@ -19,7 +19,13 @@ import { ToastContainer } from "react-toastify";
 import Loader from "./pages/Loader.jsx";
 import BlogAndEventsPage from "./components/BlogAndEventsPage/BlogAndEventsPage.jsx";
 import RentingPage from "./components/Renting/RentingPage.jsx";
-import CartPage from "./components/Renting/CartPage.jsx";
+import Services from "./components/Services/Services.jsx";
+import Contact from "./components/Company/Contact.jsx";
+import AboutUs from "./components/Company/AboutUs.jsx";
+import Careers from "./components/Company/Careers.jsx";
+import Checkout from "./components/Checkout/Checkout.jsx";
+import NotFound from "./components/NotFound/NotFound.jsx";
+// import ProfileContent from "./components/Profile/ProfileContent.jsx";
 //import ProtectedRoute from "./routes/ProtectedRoute.jsx";
 
 
@@ -48,7 +54,7 @@ function App() {
           element={<ActivationPage />}
         />
         <Route path="/events" element={<BlogAndEventsPage />} />
-        
+
         <Route path="/rent" element={<RentingPage />} />
         <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
         <Route path="/admin-client" element={<AdminDashboardClients />} />
@@ -63,6 +69,16 @@ function App() {
         />
         <Route path="/admin-listing" element={<AdminDashboardListings />} />
         <Route path="/admin-event" element={<AdminDashboardEvents />} />
+
+        {/* <Route path="/profile" element={<ProfileContent />} /> */}
+
+        <Route path="/events" element={<BlogAndEventsPage />} />
+        <Route path="/services" element={<Services />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/aboutus" element={<AboutUs />} />
+        <Route path="/careers" element={<Careers />} />
+        <Route path="*" element={<NotFound />} />
+        <Route path="/checkout" element={<Checkout />} />
       </Routes>
       <ToastContainer
         position="bottom-center"

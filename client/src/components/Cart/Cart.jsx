@@ -1,26 +1,53 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { RxCross1 } from "react-icons/rx";
 import { IoBagHandleOutline } from "react-icons/io5";
 import { HiOutlineMinus, HiPlus } from "react-icons/hi";
-import styles from "../../styles/styles";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart, removeFromCart } from "../../redux/action/cart.js";
 import { toast } from "react-toastify";
 
 const Cart = ({ setOpenCart }) => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { cart } = useSelector((state) => state.cart);
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const removeFromCartHandler = (data) => {
     dispatch(removeFromCart(data));
   };
 
-  const totalPrice = cart.reduce((acc, item) => acc + item.qty * item.price, 0);
+  const totalPrice = cart.reduce((acc, item) => {
+    const numericPrice = parseFloat(item.price.replace(/[^\d.]/g, "")) || 0;
+    return acc + item.qty * numericPrice;
+  }, 0);
+
 
   const quantityChangeHandler = (data, qty) => {
     dispatch(addToCart({ ...data, qty }));
   };
+  useEffect(() => {
+    const user = localStorage.getItem("user");
+    if (user) {
+      setIsLoggedIn(true);
+    }
+  }, []);
+  const handleCheckout = () => {
+    if (!isLoggedIn) {
+      toast.error("You need to log in before checking out.", {
+        autoClose: 4000,
+      });
+
+      setTimeout(() => {
+        navigate("/login");
+      }, 4000);
+
+      return;
+    }
+
+    navigate("/checkout");
+  };
+
 
   return (
     <div className="fixed top-0 left-0 w-full bg-[#0000004b] h-screen z-[99999] flex justify-end">
@@ -56,11 +83,12 @@ const Cart = ({ setOpenCart }) => {
               ))}
             </div>
             <div className="px-5 mb-3">
-              <Link to="/checkout">
+              <Link onClick={handleCheckout}>
                 <div className="h-[45px] flex items-center justify-center w-full bg-[#e44343] rounded-lg">
                   <h1 className="text-white text-[16px] md:text-[18px] font-[600]">
-                    Checkout Now (Ksh {totalPrice.toFixed(2)})
+                    Checkout Now (Ksh {totalPrice.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
                   </h1>
+
                 </div>
               </Link>
             </div>
@@ -110,18 +138,22 @@ const CartSingle = ({ data, quantityChangeHandler, removeFromCartHandler }) => {
         </button>
       </div>
       <img
-        src={data?.images?.[0]?.url ?? "fallback-image.jpg"}
+        src={data?.image ?? "fallback-image.jpg"}
         alt={data.name || "Product Image"}
         className="w-24 md:w-32 h-auto rounded-md"
       />
       <div className="flex-1">
         <h1 className="text-lg font-semibold">{data.name}</h1>
         <p className="text-gray-600">
-          Ksh {data.price} × {value}
+          Ksh {(parseFloat(data.price.replace(/[^\d.]/g, "")) || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} × {value}
         </p>
         <p className="text-red-600 font-bold text-lg">
-          Ksh {(data.price * value).toFixed(2)}
+          Ksh {(
+            (parseFloat(data.price.replace(/[^\d.]/g, "")) || 0) * value
+          ).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
         </p>
+
+
       </div>
       <button
         className="text-gray-600 hover:text-red-600"
