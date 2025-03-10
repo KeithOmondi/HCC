@@ -7,7 +7,7 @@ import {
   FaBuilding,
   FaShoppingCart,
 } from "react-icons/fa";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../../redux/action/cart";
 import { toast } from "react-toastify";
@@ -74,7 +74,6 @@ const listings = [
 ];
 
 export default function RentingPage() {
-  const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
 
