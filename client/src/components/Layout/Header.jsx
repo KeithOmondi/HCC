@@ -245,34 +245,18 @@ const Header = () => {
               </button>
               {rentDropdownOpen && (
                 <div className="ml-4 mt-2 space-y-2">
-                  <Link
-                    to="/rent"
-                    className="block text-sm text-blue-950 hover:text-blue-700"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    Warehouses
-                  </Link>
-                  <Link
-                    to="/rent/real-estate"
-                    className="block text-sm text-blue-950 hover:text-blue-700"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    Real Estate
-                  </Link>
-                  <Link
-                    to="/rent/event-spaces"
-                    className="block text-sm text-blue-950 hover:text-blue-700"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    Event Spaces
-                  </Link>
-                  <Link
-                    to="/rent/office-spaces"
-                    className="block text-sm text-blue-950 hover:text-blue-700"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    Office Spaces
-                  </Link>
+                  {["Warehouses", "Units", "Event Spaces", "Office Spaces"].map((category, idx) => (
+                    <button
+                      key={idx}
+                      className="block w-full text-left px-4 py-2 hover:bg-blue-50"
+                      onClick={() => {
+                        handleRentSelection("/rent", category);
+                        setMenuOpen(false);
+                      }}
+                    >
+                      Rent {category}
+                    </button>
+                  ))}
                 </div>
               )}
             </div>
@@ -284,6 +268,7 @@ const Header = () => {
             >
               Blogs & Events
             </Link>
+
             <Link
               to="/services"
               className="text-blue-950 hover:text-blue-700"
@@ -295,44 +280,73 @@ const Header = () => {
             {/* Company Dropdown */}
             <div className="relative">
               <button
-                onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                onClick={() => setDropdownOpen(!dropdownOpen)}
                 className="flex justify-between items-center w-full text-blue-950 hover:text-blue-700"
               >
                 Company <FaChevronDown className="ml-2" />
               </button>
-              {userDropdownOpen && (
+              {dropdownOpen && (
                 <div className="ml-4 mt-2 space-y-2">
-                  <Link
-                    to="/about"
-                    className="block text-sm text-blue-950 hover:text-blue-700"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    About Us
-                  </Link>
-                  <Link
-                    to="/careers"
-                    className="block text-sm text-blue-950 hover:text-blue-700"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    Careers
-                  </Link>
-                  <Link
-                    to="/contact"
-                    className="block text-sm text-blue-950 hover:text-blue-700"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    Contact
-                  </Link>
+                  {[
+                    { name: "About Us", path: "/aboutus" },
+                    { name: "Careers", path: "/careers" },
+                    { name: "Contact", path: "/contact" },
+                  ].map((item, idx) => (
+                    <Link
+                      key={idx}
+                      to={item.path}
+                      className="block w-full px-4 py-2 hover:bg-blue-50"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      {item.name}
+                    </Link>
+                  ))}
                 </div>
-
               )}
             </div>
 
+            {username ? (
+              <div className="relative">
+                <button
+                  onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                  className="flex justify-between items-center w-full text-blue-950 hover:text-blue-700"
+                >
+                  {username} <FaChevronDown className="ml-2" />
+                </button>
+                {userDropdownOpen && (
+                  <div className="ml-4 mt-2 space-y-2">
+                    <Link
+                      to="/profile"
+                      className="block w-full px-4 py-2 hover:bg-blue-50"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      Profile
+                    </Link>
+                    <button
+                      className="block w-full text-left px-4 py-2 hover:bg-blue-50"
+                      onClick={handleLogout}
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link
+                to="/login"
+                className="text-blue-950 hover:text-blue-700"
+                onClick={() => setMenuOpen(false)}
+              >
+                Login
+              </Link>
+            )}
           </ul>
         </div>
       )}
     </>
   );
 };
+
+
 
 export default Header;
