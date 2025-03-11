@@ -11,7 +11,8 @@ import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../../redux/action/cart";
 import { toast } from "react-toastify";
-
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Header from "../Layout/Header";
 import Footer from "../Layout/Footer";
 
@@ -110,6 +111,7 @@ export default function RentingPage() {
   return (
     <>
       <Header />
+      <ToastContainer />
       <div className="p-6 bg-gray-100 text-gray-900 min-h-screen">
         <motion.h1
           className="text-2xl md:text-3xl font-bold text-center mb-6"
