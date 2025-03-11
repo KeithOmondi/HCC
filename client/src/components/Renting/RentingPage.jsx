@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+// eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 import {
   FaHome,
@@ -6,7 +7,7 @@ import {
   FaBuilding,
   FaShoppingCart,
 } from "react-icons/fa";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart } from "../../redux/action/cart";
 import { toast } from "react-toastify";
@@ -17,7 +18,7 @@ import Footer from "../Layout/Footer";
 const categories = [
   { name: "All", icon: null },
   { name: "Warehouses", icon: FaWarehouse },
-  { name: "Real Estate", icon: FaHome },
+  { name: "Units", icon: FaHome },
   { name: "Event Spaces", icon: FaBuilding },
   { name: "Office Spaces", icon: FaBuilding },
 ];
@@ -33,7 +34,7 @@ const listings = [
   },
   {
     _id: 2,
-    category: "Real Estate",
+    category: "Units",
     name: "3 Bedroom Apartment",
     price: "KES 80,000",
     image: "https://thumbs.dreamstime.com/b/apartment-building-19532951.jpg",
@@ -56,7 +57,7 @@ const listings = [
   },
   {
     _id: 5,
-    category: "Real Estate",
+    category: "Units",
     name: "Luxury Villa",
     price: "KES 250,000",
     image:
@@ -73,7 +74,6 @@ const listings = [
 ];
 
 export default function RentingPage() {
-  const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
 
@@ -125,11 +125,10 @@ export default function RentingPage() {
             <button
               key={name}
               onClick={() => setSelectedCategory(name)}
-              className={`px-3 py-2 text-sm md:text-base rounded flex items-center gap-2 ${
-                selectedCategory === name
-                  ? "bg-blue-950 text-white"
-                  : "bg-gray-200"
-              }`}
+              className={`px-3 py-2 text-sm md:text-base rounded flex items-center gap-2 ${selectedCategory === name
+                ? "bg-blue-950 text-white"
+                : "bg-gray-200"
+                }`}
             >
               {Icon && <Icon />} {name}
             </button>

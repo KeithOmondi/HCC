@@ -1,18 +1,22 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import Modal from "react-modal";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+// eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
 const mockListings = [
-    { id: 1, title: "Luxury Villa", location: "Nairobi", price: 1200, beds: 3, baths: 2, image: "https://thermohouse.ie/wp-content/uploads/2019/04/hero-image.jpg" },
-    { id: 2, title: "Modern Apartment", location: "Mombasa", price: 800, beds: 2, baths: 1, image: "https://thermohouse.ie/wp-content/uploads/2019/04/hero-image.jpg" },
-    { id: 3, title: "Cozy Cottage", location: "Kisumu", price: 1000, beds: 3, baths: 1, image: "https://thermohouse.ie/wp-content/uploads/2019/04/hero-image.jpg" },
-    // Duplicate the listings
-    { id: 4, title: "Studio Apartment", location: "Nakuru", price: 600, beds: 1, baths: 1, image: "https://thermohouse.ie/wp-content/uploads/2019/04/hero-image.jpg" },
-    { id: 5, title: "Beachfront Home", location: "Diani", price: 1500, beds: 4, baths: 3, image: "https://thermohouse.ie/wp-content/uploads/2019/04/hero-image.jpg" },
-    { id: 6, title: "Urban Loft", location: "Thika", price: 900, beds: 2, baths: 2, image: "https://thermohouse.ie/wp-content/uploads/2019/04/hero-image.jpg" },
+    { id: 1, title: "Luxury Villa", location: "Nairobi", price: 1200, beds: 3, baths: 2, image: "https://thermohouse.ie/wp-content/uploads/2019/04/hero-image.jpg", lat: -1.286389, lng: 36.817223 },
+    { id: 2, title: "Modern Apartment", location: "Mombasa", price: 800, beds: 2, baths: 1, image: "https://thermohouse.ie/wp-content/uploads/2019/04/hero-image.jpg", lat: -4.043477, lng: 39.668206 },
+    { id: 3, title: "Cozy Cottage", location: "Kisumu", price: 1000, beds: 3, baths: 1, image: "https://thermohouse.ie/wp-content/uploads/2019/04/hero-image.jpg", lat: -0.091702, lng: 34.767956 },
+    { id: 4, title: "Studio Apartment", location: "Nakuru", price: 600, beds: 1, baths: 1, image: "https://thermohouse.ie/wp-content/uploads/2019/04/hero-image.jpg", lat: -0.303099, lng: 36.080026 },
+    { id: 5, title: "Beachfront Home", location: "Diani", price: 1500, beds: 4, baths: 3, image: "https://thermohouse.ie/wp-content/uploads/2019/04/hero-image.jpg", lat: -4.322575, lng: 39.575383 },
+    { id: 6, title: "Urban Loft", location: "Thika", price: 900, beds: 2, baths: 2, image: "https://thermohouse.ie/wp-content/uploads/2019/04/hero-image.jpg", lat: -1.03326, lng: 37.06933 },
 ];
+
 
 const Listings = () => {
     const [searchQuery, setSearchQuery] = useState({ location: "", priceRange: "" });
     const [filteredListings, setFilteredListings] = useState(mockListings);
+    const [selectedListing, setSelectedListing] = useState(null);
     const scrollContainerRef = useRef(null);
     const handleSearch = useCallback(() => {
         const { location, priceRange } = searchQuery;
@@ -65,6 +69,24 @@ const Listings = () => {
                 }
             }, 300);
         }
+    };
+    const modalStyles = {
+        overlay: {
+            backgroundColor: "rgba(0, 0, 0, 0.3)",
+            backdropFilter: "blur(10px)",
+        },
+        content: {
+            width: "90%",
+            maxWidth: "600px",
+            maxHeight: "90vh",
+            margin: "auto",
+            padding: "20px",
+            borderRadius: "10px",
+            overflowY: "auto",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+        },
     };
     return (
         <>  {/* Search Section */}
@@ -150,12 +172,13 @@ const Listings = () => {
                                         <p className="text-blue-950 font-semibold my-4">
                                             {listing.location}
                                         </p>
-                                        <p className="text-blue-950 mt-2">
+                                        {/* <p className="text-blue-950 mt-2">
                                             {`This beautiful home located in ${listing.location} offers a comfortable lifestyle with ${listing.beds} bedrooms and ${listing.baths} bathrooms. It's perfect for families or individuals seeking a cozy yet spacious place. Rent this property for just $${listing.price} per month.`}
-                                        </p>
+                                        </p> */}
                                         <motion.button
                                             className="mt-4 px-6 py-3 bg-gray-100 hover:bg-blue-950 hover:text-white text-blue-950 font-semibold"
                                             whileTap={{ scale: 0.95 }}
+                                            onClick={() => setSelectedListing(listing)}
                                         >
                                             View More
                                         </motion.button>
@@ -172,7 +195,57 @@ const Listings = () => {
                         </button>
                     </div>
                 </div>
-            </section></>
+            </section>
+            {selectedListing && (
+                <Modal
+                    isOpen={!!selectedListing}
+                    onRequestClose={() => setSelectedListing(null)}
+                    style={modalStyles}
+                >
+                    <button
+                        className="absolute top-4 right-4 text-gray-600 hover:text-red-600"
+                        onClick={() => setSelectedListing(null)}
+                    >
+                        ✖
+                    </button>
+
+                    <h2 className="text-2xl font-semibold text-blue-950 text-center mb-2">
+                        {selectedListing.title}
+                    </h2>
+
+                    <p className="text-blue-950 text-center mb-4">
+                        {selectedListing.beds} Beds • {selectedListing.baths} Baths • ${selectedListing.price}/month
+                    </p>
+
+                    <img
+                        src={selectedListing.image}
+                        alt={selectedListing.title}
+                        className="w-full h-56 object-cover rounded-md mb-4"
+                    />
+
+                    <p className="text-gray-700 text-sm text-center mb-4">
+                        This beautiful home in {selectedListing.location} offers a perfect blend of comfort and style.
+                        Featuring {selectedListing.beds} spacious bedrooms and {selectedListing.baths} modern bathrooms,
+                        it is ideal for families or individuals looking for a premium living experience.
+                    </p>
+
+                    {/* Fixed size map container */}
+                    <div className="w-[400px] h-[300px] mx-auto rounded-lg overflow-hidden">
+                        <MapContainer
+                            center={[selectedListing.lat, selectedListing.lng]}
+                            zoom={13}
+                            className="w-full h-full"
+                            style={{ width: "100%", height: "100%" }} // Ensures it takes up full div
+                        >
+                            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                            <Marker position={[selectedListing.lat, selectedListing.lng]}>
+                                <Popup>{selectedListing.title}</Popup>
+                            </Marker>
+                        </MapContainer>
+                    </div>
+                </Modal>
+            )}
+        </>
     )
 }
 export default Listings;
