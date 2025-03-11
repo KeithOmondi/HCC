@@ -1,9 +1,9 @@
+import React, { useState } from "react";
 import axios from "axios";
-import { React, useState } from "react";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { Link, useNavigate } from "react-router-dom";
-import { server } from "../../server";
 import { toast } from "react-toastify";
+import { server } from "../../server";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -13,31 +13,26 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+    
     try {
       const res = await axios.post(
         `${server}/client/login-client`,
         { email, password },
         { withCredentials: true }
       );
-  
-      if (res.data.forceReset) {
-        toast.warning("Admin must reset the password before proceeding.");
-        navigate("/admin-reset-password"); // Redirect to reset page
-        return;
-      }
-  
-      toast.success("Login Success!");
-  
-      const userRole = res.data.user.role; // Assuming backend sends user role
-      navigate(userRole === "admin" ? "/admin-dashboard" : "/");
-      window.location.reload(true); 
+
+      toast.success("Login Successful!");
+      localStorage.setItem("client", "true");
+      
+      // Redirect to intended page after login
+      const redirectTo = localStorage.getItem("redirectAfterLogin") || "/";
+      localStorage.removeItem("redirectAfterLogin"); // Clear stored redirect
+      navigate(redirectTo);
     } catch (err) {
-      toast.error(err.response?.data?.message || "Login failed");
+      const errorMessage = err.response?.data?.message || "Login failed. Please try again.";
+      toast.error(errorMessage);
     }
   };
-  
-  
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -50,10 +45,7 @@ const Login = () => {
         <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
-              <label
-                htmlFor="email"
-                className="block text-sm font-medium text-gray-700"
-              >
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                 Email address
               </label>
               <div className="mt-1">
@@ -69,10 +61,7 @@ const Login = () => {
               </div>
             </div>
             <div>
-              <label
-                htmlFor="password"
-                className="block text-sm font-medium text-gray-700"
-              >
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                 Password
               </label>
               <div className="mt-1 relative">
@@ -85,22 +74,17 @@ const Login = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 />
-                {visible ? (
-                  <AiOutlineEye
-                    className="absolute right-2 top-2 cursor-pointer"
-                    size={25}
-                    onClick={() => setVisible(false)}
-                  />
-                ) : (
-                  <AiOutlineEyeInvisible
-                    className="absolute right-2 top-2 cursor-pointer"
-                    size={25}
-                    onClick={() => setVisible(true)}
-                  />
-                )}
+                <button
+                  type="button"
+                  className="absolute right-3 top-2.5 text-gray-500"
+                  onClick={() => setVisible(!visible)}
+                  aria-label="Toggle password visibility"
+                >
+                  {visible ? <AiOutlineEye size={20} /> : <AiOutlineEyeInvisible size={20} />}
+                </button>
               </div>
             </div>
-            <div className="flex items-center justify-between" >
+            <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <input
                   type="checkbox"
@@ -108,32 +92,27 @@ const Login = () => {
                   id="remember-me"
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
-                <label
-                  htmlFor="remember-me"
-                  className="ml-2 block text-sm text-gray-900"
-                >
+                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
                   Remember me
                 </label>
               </div>
               <div className="text-sm">
-                <a
-                  href=".forgot-password"
-                  className="font-medium text-blue-600 hover:text-blue-500"
-                >
+                <Link to="/forgot-password" className="font-medium text-blue-600 hover:text-blue-500">
                   Forgot your password?
-                </a>
+                </Link>
               </div>
             </div>
             <div>
               <button
                 type="submit"
                 className="group relative w-full h-[40px] flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+                aria-label="Login Button"
               >
                 Submit
               </button>
             </div>
             <div className="flex items-center w-full">
-              <h4>Not have any account?</h4>
+              <h4>Don't have an account?</h4>
               <Link to="/sign-up" className="text-blue-600 pl-2">
                 Sign Up
               </Link>

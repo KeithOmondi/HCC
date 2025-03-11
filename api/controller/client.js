@@ -165,21 +165,13 @@ router.post(
         return next(new ErrorHandler("Incorrect credentials", 400));
       }
 
-      // Force admin to change password if it's the first login
-      if (client.role === "admin" && client.forcePasswordChange) {
-        return res.status(200).json({
-          success: true,
-          message: "Please reset your password before proceeding.",
-          forceReset: true,
-        });
-      }
-
       sendToken(client, 201, res);
     } catch (error) {
       return next(new ErrorHandler(error.message, 500));
     }
   })
 );
+
 
 
 // load client

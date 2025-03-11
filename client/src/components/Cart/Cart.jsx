@@ -27,8 +27,8 @@ const Cart = ({ setOpenCart }) => {
     dispatch(addToCart({ ...data, qty }));
   };
   useEffect(() => {
-    const user = localStorage.getItem("user");
-    if (user) {
+    const client = localStorage.getItem("client");
+    if (client) {
       setIsLoggedIn(true);
     }
   }, []);
@@ -37,16 +37,20 @@ const Cart = ({ setOpenCart }) => {
       toast.error("You need to log in before checking out.", {
         autoClose: 4000,
       });
-
+  
+      // Store the intended page in localStorage
+      localStorage.setItem("redirectAfterLogin", "/checkout");
+  
       setTimeout(() => {
         navigate("/login");
       }, 4000);
-
+  
       return;
     }
-
+  
     navigate("/checkout");
   };
+  
 
 
   return (
