@@ -19,6 +19,7 @@ const Header = () => {
   const [activeLink, setActiveLink] = useState("Home");
   const [username, setUsername] = useState("");
   const [openCart, setOpenCart] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -222,6 +223,114 @@ const Header = () => {
         </div>
       </div>
       {openCart && <Cart setOpenCart={setOpenCart} />}
+      {/* Mobile Navigation Menu */}
+      {menuOpen && (
+        <div className="absolute top-14 left-0 w-full bg-white shadow-md z-40 transition-all">
+          <ul className="flex flex-col space-y-4 p-4">
+            <Link
+              to="/"
+              className="text-blue-950 hover:text-blue-700"
+              onClick={() => setMenuOpen(false)}
+            >
+              Home
+            </Link>
+
+            {/* Rent Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setRentDropdownOpen(!rentDropdownOpen)}
+                className="flex justify-between items-center w-full text-blue-950 hover:text-blue-700"
+              >
+                Rent <FaChevronDown className="ml-2" />
+              </button>
+              {rentDropdownOpen && (
+                <div className="ml-4 mt-2 space-y-2">
+                  <Link
+                    to="/rent"
+                    className="block text-sm text-blue-950 hover:text-blue-700"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    Warehouses
+                  </Link>
+                  <Link
+                    to="/rent/real-estate"
+                    className="block text-sm text-blue-950 hover:text-blue-700"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    Real Estate
+                  </Link>
+                  <Link
+                    to="/rent/event-spaces"
+                    className="block text-sm text-blue-950 hover:text-blue-700"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    Event Spaces
+                  </Link>
+                  <Link
+                    to="/rent/office-spaces"
+                    className="block text-sm text-blue-950 hover:text-blue-700"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    Office Spaces
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            <Link
+              to="/events"
+              className="text-blue-950 hover:text-blue-700"
+              onClick={() => setMenuOpen(false)}
+            >
+              Blogs & Events
+            </Link>
+            <Link
+              to="/services"
+              className="text-blue-950 hover:text-blue-700"
+              onClick={() => setMenuOpen(false)}
+            >
+              Services
+            </Link>
+
+            {/* Company Dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+                className="flex justify-between items-center w-full text-blue-950 hover:text-blue-700"
+              >
+                Company <FaChevronDown className="ml-2" />
+              </button>
+              {userDropdownOpen && (
+                <div className="ml-4 mt-2 space-y-2">
+                  <Link
+                    to="/about"
+                    className="block text-sm text-blue-950 hover:text-blue-700"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    About Us
+                  </Link>
+                  <Link
+                    to="/careers"
+                    className="block text-sm text-blue-950 hover:text-blue-700"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    Careers
+                  </Link>
+                  <Link
+                    to="/contact"
+                    className="block text-sm text-blue-950 hover:text-blue-700"
+                    onClick={() => setMenuOpen(false)}
+                  >
+                    Contact
+                  </Link>
+                </div>
+
+              )}
+            </div>
+
+          </ul>
+        </div>
+      )}
     </>
   );
 };
