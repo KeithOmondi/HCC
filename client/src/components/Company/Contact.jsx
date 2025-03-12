@@ -2,6 +2,7 @@
 import { motion } from "framer-motion";
 import { FaPhone, FaEnvelope, FaMapMarkerAlt } from "react-icons/fa";
 import Header from "../Layout/Header";
+import Footer from "../Layout/Footer";
 
 const Contact = () => {
     return (
@@ -68,6 +69,8 @@ const Contact = () => {
                     </motion.div>
                 </div>
             </section>
+
+            <Footer />
         </>
     );
 };

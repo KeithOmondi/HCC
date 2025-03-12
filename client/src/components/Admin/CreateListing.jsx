@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { createListing, clearErrors } from "../../redux/action/listing";
-import { categoriesData } from "../../static/data";
+import { ListingsData } from "../../static/data";
 
 const CreateListing = () => {
   const dispatch = useDispatch();
@@ -70,10 +70,8 @@ const CreateListing = () => {
         name,
         description,
         category,
-        tags,
         originalPrice,
         discountPrice,
-        stock,
         propertyId: agent._id,
         images,
       })
@@ -81,72 +79,97 @@ const CreateListing = () => {
   };
 
   return (
-    <div className="w-[90%] 800px:w-[50%] bg-white shadow h-[80vh] rounded-[4px] p-3 overflow-y-scroll">
-      <h5 className="text-[30px] font-Poppins text-center">Create Listing</h5>
+    <div className="w-full sm:w-[90%] md:w-[70%] lg:w-[50%] bg-white shadow-lg rounded-lg p-4 md:p-6 mx-auto mt-6 max-h-screen overflow-auto">
+      <h5 className="text-2xl font-semibold text-center mb-4">Create Listing</h5>
       <form onSubmit={handleSubmit}>
-        <br />
-        <div>
-          <label className="pb-2">Name <span className="text-red-500">*</span></label>
+        {/* Name Field */}
+        <div className="mb-4">
+          <label className="block text-gray-700">Name <span className="text-red-500">*</span></label>
           <input
             type="text"
             value={name}
-            className="mt-2 w-full px-3 h-[35px] border border-gray-300 rounded-[3px]"
+            className="w-full px-3 py-2 border rounded-md focus:ring focus:ring-blue-300"
             onChange={(e) => setName(e.target.value)}
-            placeholder="Enter your listing name..."
+            placeholder="Enter listing name..."
+            required
           />
         </div>
-        <br />
-        <div>
-          <label className="pb-2">Description <span className="text-red-500">*</span></label>
+
+        {/* Description */}
+        <div className="mb-4">
+          <label className="block text-gray-700">Description <span className="text-red-500">*</span></label>
           <textarea
-            cols="30"
-            rows="8"
-            required
             value={description}
-            className="mt-2 w-full pt-2 px-3 border border-gray-300 rounded-[3px]"
+            className="w-full px-3 py-2 border rounded-md focus:ring focus:ring-blue-300"
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Enter your listing description..."
-          ></textarea>
+            placeholder="Enter listing description..."
+            rows="4"
+            required
+          />
         </div>
-        <br />
-        <div>
-          <label className="pb-2">Category <span className="text-red-500">*</span></label>
+
+        {/* Category Selection */}
+        <div className="mb-4">
+          <label className="block text-gray-700">Category <span className="text-red-500">*</span></label>
           <select
-            className="w-full mt-2 border h-[35px] rounded-[5px]"
+            className="w-full px-3 py-2 border rounded-md focus:ring focus:ring-blue-300"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
+            required
           >
             <option value="">Choose a category</option>
-            {categoriesData?.map((cat) => (
-              <option value={cat.title} key={cat.title}>{cat.title}</option>
+            {ListingsData?.map((cat) => (
+              <option key={cat.title} value={cat.title}>{cat.title}</option>
             ))}
           </select>
         </div>
-        <br />
-        <div>
-          <label className="pb-2">Upload Images <span className="text-red-500">*</span></label>
+
+        {/* Price Fields */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label className="block text-gray-700">Original Price</label>
+            <input
+              type="number"
+              value={originalPrice}
+              className="w-full px-3 py-2 border rounded-md focus:ring focus:ring-blue-300"
+              onChange={(e) => setOriginalPrice(e.target.value)}
+              placeholder="Enter price..."
+            />
+          </div>
+          <div>
+            <label className="block text-gray-700">Discount Price</label>
+            <input
+              type="number"
+              value={discountPrice}
+              className="w-full px-3 py-2 border rounded-md focus:ring focus:ring-blue-300"
+              onChange={(e) => setDiscountPrice(e.target.value)}
+              placeholder="Enter discount price..."
+            />
+          </div>
+        </div>
+
+        {/* Upload Images */}
+        <div className="mb-4">
+          <label className="block text-gray-700">Upload Images <span className="text-red-500">*</span></label>
           <input type="file" id="upload" className="hidden" multiple onChange={handleImageChange} />
-          <div className="w-full flex items-center flex-wrap">
-            <label htmlFor="upload">
-              <AiOutlinePlusCircle size={30} className="mt-3" color="#555" />
+          <div className="flex flex-wrap mt-2">
+            <label htmlFor="upload" className="cursor-pointer">
+              <AiOutlinePlusCircle size={30} className="text-gray-500" />
             </label>
             {images.map((img, index) => (
-              <img
-                key={index}
-                src={img}
-                alt="Listing Preview"
-                className="h-[120px] w-[120px] object-cover m-2"
-              />
+              <img key={index} src={img} alt="Preview" className="h-24 w-24 object-cover m-2 rounded-md shadow-md" />
             ))}
           </div>
         </div>
-        <br />
-        <div>
-          <input
+
+        {/* Submit Button */}
+        <div className="mb-4">
+          <button
             type="submit"
-            value="Create"
-            className="mt-2 cursor-pointer w-full px-3 h-[35px] border border-gray-300 rounded-[3px]"
-          />
+            className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition-all duration-300"
+          >
+            Create Listing
+          </button>
         </div>
       </form>
     </div>

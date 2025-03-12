@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { FaBuilding, FaHome, FaWarehouse, FaUsers, FaChartLine, FaHandshake } from "react-icons/fa";
 import Header from "../Layout/Header";
+import Footer from "../Layout/Footer";
 
 const services = [
     {
@@ -107,6 +108,8 @@ const Services = () => {
                 </div>
 
             </section>
+
+            <Footer />
         </>
     );
 };

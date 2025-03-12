@@ -4,12 +4,12 @@ import { server } from "../../server";
 // Load client
 export const loadClient = () => async (dispatch) => {
   try {
-    dispatch({
-      type: "LoadClientRequest",
-    });
+    dispatch({ type: "LoadClientRequest" });
+
     const { data } = await axios.get(`${server}/client/getclient`, {
       withCredentials: true,
     });
+
     dispatch({
       type: "LoadClientSuccess",
       payload: data.client,
@@ -17,7 +17,7 @@ export const loadClient = () => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: "LoadClientFail",
-      payload: error.response.data.message,
+      payload: error.response?.data?.message || "Something went wrong",
     });
   }
 };
@@ -25,12 +25,12 @@ export const loadClient = () => async (dispatch) => {
 // Load property
 export const loadProperty = () => async (dispatch) => {
   try {
-    dispatch({
-      type: "LoadPropertyRequest",
-    });
+    dispatch({ type: "LoadPropertyRequest" });
+
     const { data } = await axios.get(`${server}/property/getProperty`, {
       withCredentials: true,
     });
+
     dispatch({
       type: "LoadPropertySuccess",
       payload: data.property,
@@ -38,7 +38,7 @@ export const loadProperty = () => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: "LoadPropertyFail",
-      payload: error.response.data.message,
+      payload: error.response?.data?.message || "Something went wrong",
     });
   }
 };
@@ -46,23 +46,14 @@ export const loadProperty = () => async (dispatch) => {
 // Update client information
 export const updateClientInformation = (name, email, phoneNumber, password) => async (dispatch) => {
   try {
-    dispatch({
-      type: "updateClientInfoRequest",
-    });
+    dispatch({ type: "updateClientInfoRequest" });
 
     const { data } = await axios.put(
       `${server}/client/update-client-info`,
-      {
-        email,
-        password,
-        phoneNumber,
-        name,
-      },
+      { email, password, phoneNumber, name },
       {
         withCredentials: true,
-        headers: {
-          "Access-Control-Allow-Credentials": true,
-        },
+        headers: { "Content-Type": "application/json" }, // ✅ Added correct headers
       }
     );
 
@@ -73,7 +64,7 @@ export const updateClientInformation = (name, email, phoneNumber, password) => a
   } catch (error) {
     dispatch({
       type: "updateClientInfoFailed",
-      payload: error.response.data.message,
+      payload: error.response?.data?.message || "Something went wrong",
     });
   }
 };
@@ -81,21 +72,15 @@ export const updateClientInformation = (name, email, phoneNumber, password) => a
 // Update client address
 export const updateClientAddress = (country, city, address1, address2, zipCode, addressType) => async (dispatch) => {
   try {
-    dispatch({
-      type: "updateClientAddressRequest",
-    });
+    dispatch({ type: "updateClientAddressRequest" });
 
     const { data } = await axios.put(
       `${server}/client/update-client-addresses`,
+      { country, city, address1, address2, zipCode, addressType },
       {
-        country,
-        city,
-        address1,
-        address2,
-        zipCode,
-        addressType,
-      },
-      { withCredentials: true }
+        withCredentials: true,
+        headers: { "Content-Type": "application/json" }, // ✅ Added correct headers
+      }
     );
 
     dispatch({
@@ -108,7 +93,7 @@ export const updateClientAddress = (country, city, address1, address2, zipCode, 
   } catch (error) {
     dispatch({
       type: "updateClientAddressFailed",
-      payload: error.response.data.message,
+      payload: error.response?.data?.message || "Something went wrong",
     });
   }
 };
@@ -116,14 +101,11 @@ export const updateClientAddress = (country, city, address1, address2, zipCode, 
 // Delete client address
 export const deleteClientAddress = (id) => async (dispatch) => {
   try {
-    dispatch({
-      type: "deleteClientAddressRequest",
-    });
+    dispatch({ type: "deleteClientAddressRequest" });
 
-    const { data } = await axios.delete(
-      `${server}/client/delete-client-address/${id}`,
-      { withCredentials: true }
-    );
+    const { data } = await axios.delete(`${server}/client/delete-client-address/${id}`, {
+      withCredentials: true,
+    });
 
     dispatch({
       type: "deleteClientAddressSuccess",
@@ -135,7 +117,7 @@ export const deleteClientAddress = (id) => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: "deleteClientAddressFailed",
-      payload: error.response.data.message,
+      payload: error.response?.data?.message || "Something went wrong",
     });
   }
 };
@@ -143,9 +125,7 @@ export const deleteClientAddress = (id) => async (dispatch) => {
 // Get all clients --- admin
 export const getAllClients = () => async (dispatch) => {
   try {
-    dispatch({
-      type: "getAllClientsRequest",
-    });
+    dispatch({ type: "getAllClientsRequest" });
 
     const { data } = await axios.get(`${server}/client/admin-all-clients`, {
       withCredentials: true,
@@ -158,7 +138,7 @@ export const getAllClients = () => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: "getAllClientsFailed",
-      payload: error.response.data.message,
+      payload: error.response?.data?.message || "Something went wrong",
     });
   }
 };

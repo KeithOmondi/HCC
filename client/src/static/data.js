@@ -1,101 +1,53 @@
-// navigation Data
-export const navItems = [
-  {
-    title: "Home",
-    url: "/",
-  },
-  {
-    title: "Best Selling",
-    url: "/best-selling",
-  },
-  {
-    title: "Products",
-    url: "/products",
-  },
-  {
-    title: "Events",
-    url: "/events",
-  },
-  {
-    title: "FAQ",
-    url: "/faq",
-  },
-];
-
-// branding data
-
-
 // categories data
-export const categoriesData = [
+export const ListingsData = [
   {
-    id: 1,
-    title: "Computers and Laptops",
-    subTitle: "",
-    image_Url:
-      "https://cdn.shopify.com/s/files/1/1706/9177/products/NEWAppleMacbookProwithM1ProChip14InchLaptop2021ModelMKGQ3LL_A_16GB_1TBSSD_custommacbd.jpg?v=1659592838",
+    _id: 1,
+    category: "Warehouses",
+    name: "Large Storage Unit",
+    price: "KES 50,000",
+    image:
+      "https://5.imimg.com/data5/SELLER/Default/2022/10/ZH/OT/OG/75867042/warehouse-for-long-lease-in-thane-500x500.jpeg",
   },
   {
-    id: 2,
-    title: "cosmetics and body care",
-    subTitle: "",
-    image_Url:
-      "https://indian-retailer.s3.ap-south-1.amazonaws.com/s3fs-public/2021-07/kosme1.png",
+    _id: 2,
+    category: "Units",
+    name: "3 Bedroom Apartment",
+    price: "KES 80,000",
+    image: "https://thumbs.dreamstime.com/b/apartment-building-19532951.jpg",
   },
   {
-    id: 3,
-    title: "Accesories",
-    subTitle: "",
-    image_Url:
-      "https://img.freepik.com/free-vector/ordering-goods-online-internet-store-online-shopping-niche-e-commerce-website-mother-buying-babies-clothes-footwear-toys-infant-accessories_335657-2345.jpg?w=2000",
+    _id: 3,
+    category: "Event Spaces",
+    name: "Wedding Hall",
+    price: "KES 100,000",
+    image:
+      "https://media.istockphoto.com/id/486993238/photo/interior-of-a-wedding-tent-decoration-ready-for-guests.jpg?s=612x612&w=0&k=20&c=Rco782IaCKFSr409we4GPy01-vc4taHweUuuFJJbegk=",
   },
   {
-    id: 4,
-    title: "Cloths",
-    subTitle: "",
-    image_Url:
-      "https://www.shift4shop.com/2015/images/industries/clothing/clothing-apparel.png",
+    _id: 4,
+    category: "Office Spaces",
+    name: "Private Office",
+    price: "KES 60,000",
+    image:
+      "https://t4.ftcdn.net/jpg/03/84/55/29/360_F_384552930_zPoe9zgmCF7qgt8fqSedcyJ6C6Ye3dFs.jpg",
   },
   {
-    id: 5,
-    title: "Shoes",
-    subTitle: "",
-    image_Url:
-      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQvBQPQMVNRd6TtDkGs2dCri0Y-rxKkFOiEWw&usqp=CAU",
+    _id: 5,
+    category: "Units",
+    name: "Luxury Villa",
+    price: "KES 250,000",
+    image:
+      "https://plus.unsplash.com/premium_photo-1682377521753-58d1fd9fa5ce?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8bHV4dXJ5JTIwdmlsbGF8ZW58MHx8MHx8fDA%3D",
   },
   {
-    id: 6,
-    title: "Gifts",
-    subTitle: "",
-    image_Url:
-      "https://securecdn.pymnts.com/wp-content/uploads/2014/11/Gifts-Photo-700x489.jpg",
+    _id: 6,
+    category: "Warehouses",
+    name: "Industrial Storage",
+    price: "KES 120,000",
+    image:
+      "https://villacarekenya.com/wp-content/uploads/2021/12/5whatsappimage2019-06-12at3.35.59pm.jpeg",
   },
-  {
-    id: 7,
-    title: "Pet Care",
-    subTitle: "",
-    image_Url: "https://cdn.openpr.com/T/c/Tc15444071_g.jpg",
-  },
-  {
-    id: 8,
-    title: "Mobile and Tablets",
-    subTitle: "",
-    image_Url:
-      "https://st-troy.mncdn.com/mnresize/1500/1500/Content/media/ProductImg/original/mpwp3tua-apple-iphone-14-256gb-mavi-mpwp3tua-637986832343472449.jpg",
-  },
-  {
-    id: 9,
-    title: "Music and Gaming",
-    subTitle: "",
-    image_Url:
-      "https://static.vecteezy.com/system/resources/previews/011/996/555/original/3d-black-headphone-illustration-ecommerce-icon-png.png",
-  },
-  {
-    id: 10,
-    title: "Others",
-    subTitle: "",
-    image_Url:
-      "https://searchspring.com/wp-content/uploads/2022/10/Hero-Image-Platform-Others-2.png",
-  },
+ 
 ];
 
 // product Data
@@ -429,58 +381,4 @@ export const productData = [
   },
 ];
 
-export const footerProductLinks = [
-  {
-    name: "About us",
-    link: "/about"
-  },
-  {
-    name: "Careers",
-    link: "/carrers"
-  },
-  {
-    name: "Store Locations",
-  },
-  {
-    name: "Our Blog",
-  },
-  {
-    name: "Reviews",
-  },
-];
 
-export const footercompanyLinks = [
-  {
-    name: "Game & Video",
-  },
-  {
-    name: "Phone &Tablets",
-  },
-  {
-    name: "Computers & Laptop",
-  },
-  {
-    name: "Sport Watches",
-  },
-  {
-    name: "Events",
-  },
-];
-
-export const footerSupportLinks = [
-  {
-    name: "FAQ",
-  },
-  {
-    name: "Reviews",
-  },
-  {
-    name: "Contact Us",
-  },
-  {
-    name: "Shipping",
-  },
-  {
-    name: "Live chat",
-  },
-];

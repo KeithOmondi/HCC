@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import Header from "../Layout/Header";
+import Footer from "../Layout/Footer";
 
 const jobListings = [
     { title: "Real Estate Agent", location: "New York, USA", type: "Full-Time" },
@@ -51,6 +52,7 @@ const Careers = () => {
                     ))}
                 </div>
             </section>
+            <Footer />
         </>
     );
 };

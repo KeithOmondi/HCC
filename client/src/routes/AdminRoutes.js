@@ -5,6 +5,7 @@ import AdminDashboardTransactions from "../pages/AdminDashboardTransactions";
 import AdminDashboardListings from "../pages/AdminDashboardListings";
 import AdminDashboardEvents from "../pages/AdminDashboardEvents";
 import ResetPasswordPage from "../pages/ResetPasswordPage";
+import AdminLoginPage from "../pages/AdminLoginPage";
 
 export {
     AdminDashboardPage,
@@ -14,4 +15,5 @@ export {
     AdminDashboardListings,
     AdminDashboardEvents,
     ResetPasswordPage,
+    AdminLoginPage
 }

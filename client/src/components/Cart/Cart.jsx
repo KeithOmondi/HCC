@@ -1,17 +1,19 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { RxCross1 } from "react-icons/rx";
 import { IoBagHandleOutline } from "react-icons/io5";
 import { HiOutlineMinus, HiPlus } from "react-icons/hi";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { addToCart, removeFromCart } from "../../redux/action/cart.js";
 import { toast } from "react-toastify";
 
 const Cart = ({ setOpenCart }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { cart } = useSelector((state) => state.cart);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  // Check if user is logged in
+  const isLoggedIn = useMemo(() => !!localStorage.getItem("client"), []);
 
   const removeFromCartHandler = (data) => {
     dispatch(removeFromCart(data));
@@ -22,36 +24,19 @@ const Cart = ({ setOpenCart }) => {
     return acc + item.qty * numericPrice;
   }, 0);
 
-
   const quantityChangeHandler = (data, qty) => {
     dispatch(addToCart({ ...data, qty }));
   };
-  useEffect(() => {
-    const client = localStorage.getItem("client");
-    if (client) {
-      setIsLoggedIn(true);
-    }
-  }, []);
+
   const handleCheckout = () => {
     if (!isLoggedIn) {
-      toast.error("You need to log in before checking out.", {
-        autoClose: 4000,
-      });
-  
-      // Store the intended page in localStorage
+      toast.error("You need to log in before checking out.");
       localStorage.setItem("redirectAfterLogin", "/checkout");
-  
-      setTimeout(() => {
-        navigate("/login");
-      }, 4000);
-  
+      navigate("/login");
       return;
     }
-  
     navigate("/checkout");
   };
-  
-
 
   return (
     <div className="fixed top-0 left-0 w-full bg-[#0000004b] h-screen z-[99999] flex justify-end">
@@ -87,14 +72,19 @@ const Cart = ({ setOpenCart }) => {
               ))}
             </div>
             <div className="px-5 mb-3">
-              <Link onClick={handleCheckout}>
-                <div className="h-[45px] flex items-center justify-center w-full bg-[#e44343] rounded-lg">
-                  <h1 className="text-white text-[16px] md:text-[18px] font-[600]">
-                    Checkout Now (Ksh {totalPrice.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })})
-                  </h1>
-
-                </div>
-              </Link>
+              <button
+                onClick={handleCheckout}
+                className="h-[45px] flex items-center justify-center w-full bg-[#e44343] rounded-lg"
+              >
+                <h1 className="text-white text-[16px] md:text-[18px] font-[600]">
+                  Checkout Now (Ksh{" "}
+                  {totalPrice.toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                  )
+                </h1>
+              </button>
             </div>
           </>
         )}
@@ -105,6 +95,10 @@ const Cart = ({ setOpenCart }) => {
 
 const CartSingle = ({ data, quantityChangeHandler, removeFromCartHandler }) => {
   const [value, setValue] = useState(data.qty);
+  const parsedPrice = useMemo(
+    () => parseFloat(data.price.replace(/[^\d.]/g, "")) || 0,
+    [data.price]
+  );
 
   const increment = () => {
     if (value >= data.stock) {
@@ -149,15 +143,19 @@ const CartSingle = ({ data, quantityChangeHandler, removeFromCartHandler }) => {
       <div className="flex-1">
         <h1 className="text-lg font-semibold">{data.name}</h1>
         <p className="text-gray-600">
-          Ksh {(parseFloat(data.price.replace(/[^\d.]/g, "")) || 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} × {value}
+          Ksh {parsedPrice.toLocaleString("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}{" "}
+          × {value}
         </p>
         <p className="text-red-600 font-bold text-lg">
-          Ksh {(
-            (parseFloat(data.price.replace(/[^\d.]/g, "")) || 0) * value
-          ).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          Ksh{" "}
+          {(parsedPrice * value).toLocaleString("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })}
         </p>
-
-
       </div>
       <button
         className="text-gray-600 hover:text-red-600"

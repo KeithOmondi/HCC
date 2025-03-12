@@ -1,5 +1,5 @@
 const express = require("express");
-const Client = require("../model/client");
+//const Client = require("../model/client");
 const router = express.Router();
 const cloudinary = require("cloudinary");
 const ErrorHandler = require("../utils/ErrorHandler");
@@ -9,69 +9,72 @@ const sendMail = require("../utils/sendMail");
 const sendToken = require("../utils/jwtToken");
 const { isAuthenticated, isAdmin } = require("../middleware/auth");
 const bcrypt = require("bcryptjs");
-const crypto = require("crypto");
+const Client = require("../model/client")
+//const crypto = require("crypto");
 
 // create client
 router.post("/create-client", async (req, res, next) => {
-    try {
-      const { name, email, password, avatar } = req.body;
-      
-      console.log("Received request to create client:", { name, email }); // Log incoming request data
-  
-      const clientEmail = await Client.findOne({ email });
-  
-      if (clientEmail) {
-        console.warn("Client already exists:", email); // Log warning if user exists
-        return next(new ErrorHandler("Client already exists", 400));
-      }
-  
-      if (!avatar) {
-        console.error("Avatar missing in request body");
-        return next(new ErrorHandler("Avatar is required", 400));
-      }
-  
-      let myCloud;
-      try {
-        myCloud = await cloudinary.v2.uploader.upload(avatar, { folder: "avatars" });
-        console.log("Avatar uploaded successfully:", myCloud.secure_url);
-      } catch (uploadError) {
-        console.error("Error uploading avatar to Cloudinary:", uploadError);
-        return next(new ErrorHandler("Failed to upload avatar", 500));
-      }
-  
-      const client = {
-        name,
-        email,
-        password,
-        avatar: {
-          public_id: myCloud.public_id,
-          url: myCloud.secure_url,
-        },
-      };
-  
-      const activationToken = createActivationToken(client);
-      const activationUrl = `http://localhost:5173/activation/${activationToken}`;
-  
-      try {
-        console.log("Sending activation email to:", email);
-        await sendMail({
-          email: client.email,
-          subject: "Activate your account",
-          message: `Hello ${client.name}, please click on the link to activate your account: ${activationUrl}`,
-        });
-        res.status(201).json({
-          success: true,
-          message: `Please check your email: ${client.email} to activate your account!`,
-        });
-      } catch (mailError) {
-        console.error("Error sending activation email:", mailError);
-        return next(new ErrorHandler("Failed to send activation email", 500));
-      }
-    } catch (error) {
-      console.error("Unexpected server error:", error);
-      return next(new ErrorHandler(error.message, 400));
+  try {
+    const { name, email, password, avatar } = req.body;
+
+    console.log("Received request to create client:", { name, email }); // Log incoming request data
+
+    const clientEmail = await Client.findOne({ email });
+
+    if (clientEmail) {
+      console.warn("Client already exists:", email); // Log warning if user exists
+      return next(new ErrorHandler("Client already exists", 400));
     }
-  });
+
+    if (!avatar) {
+      console.error("Avatar missing in request body");
+      return next(new ErrorHandler("Avatar is required", 400));
+    }
+
+    let myCloud;
+    try {
+      myCloud = await cloudinary.v2.uploader.upload(avatar, {
+        folder: "avatars",
+      });
+      console.log("Avatar uploaded successfully:", myCloud.secure_url);
+    } catch (uploadError) {
+      console.error("Error uploading avatar to Cloudinary:", uploadError);
+      return next(new ErrorHandler("Failed to upload avatar", 500));
+    }
+
+    const client = {
+      name,
+      email,
+      password,
+      avatar: {
+        public_id: myCloud.public_id,
+        url: myCloud.secure_url,
+      },
+    };
+
+    const activationToken = createActivationToken(client);
+    const activationUrl = `http://localhost:5173/activation/${activationToken}`;
+
+    try {
+      console.log("Sending activation email to:", email);
+      await sendMail({
+        email: client.email,
+        subject: "Activate your account",
+        message: `Hello ${client.name}, please click on the link to activate your account: ${activationUrl}`,
+      });
+      res.status(201).json({
+        success: true,
+        message: `Please check your email: ${client.email} to activate your account!`,
+      });
+    } catch (mailError) {
+      console.error("Error sending activation email:", mailError);
+      return next(new ErrorHandler("Failed to send activation email", 500));
+    }
+  } catch (error) {
+    console.error("Unexpected server error:", error);
+    return next(new ErrorHandler(error.message, 400));
+  }
+});
 
 // create activation token
 const createActivationToken = (client) => {
@@ -115,7 +118,6 @@ router.post(
   })
 );
 
-
 //create admin
 const createAdminIfNotExists = async () => {
   try {
@@ -142,35 +144,51 @@ const createAdminIfNotExists = async () => {
 
 createAdminIfNotExists();
 
-
 // Login client/admin
-router.post(
-  "/login-client",
-  catchAsyncErrors(async (req, res, next) => {
-    try {
-      const { email, password } = req.body;
+router.post("/login-client", async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-      if (!email || !password) {
-        return next(new ErrorHandler("Please provide all fields!", 400));
-      }
-
-      const client = await Client.findOne({ email }).select("+password");
-
-      if (!client) {
-        return next(new ErrorHandler("User doesn't exist!", 400));
-      }
-
-      const isPasswordValid = await client.comparePassword(password);
-      if (!isPasswordValid) {
-        return next(new ErrorHandler("Incorrect credentials", 400));
-      }
-
-      sendToken(client, 201, res);
-    } catch (error) {
-      return next(new ErrorHandler(error.message, 500));
+    // 🔹 Check if email & password exist
+    if (!email || !password) {
+      return res.status(400).json({ message: "Please provide email and password" });
     }
-  })
-);
+
+    // 🔹 Fetch client & include password field explicitly
+    const client = await Client.findOne({ email }).select("+password");
+
+    if (!client) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    // 🔹 Compare password correctly
+    const isPasswordValid = await client.comparePassword(password);
+
+    if (!isPasswordValid) {
+      return res.status(401).json({ message: "Invalid email or password" });
+    }
+
+    // 🔹 Generate JWT token
+    const token = client.getJwtToken();
+
+    res.status(200).json({
+      success: true,
+      token,
+      client: {
+        id: client._id,
+        name: client.name,
+        email: client.email,
+        phoneNumber: client.phoneNumber,
+        role: client.role,
+        avatar: client.avatar,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
+
 
 
 
@@ -213,11 +231,10 @@ router.get(
   })
 );
 
-
 //admin password reset
 router.post("/reset-admin-password", async (req, res) => {
   const { email, newPassword } = req.body;
-  
+
   if (!email || !newPassword) {
     return res.status(400).json({ message: "Please provide all fields!" });
   }
@@ -234,11 +251,9 @@ router.post("/reset-admin-password", async (req, res) => {
 
   await admin.save();
 
-  res.status(200).json({ message: "Password updated successfully. You can now log in." });
+  res
+    .status(200)
+    .json({ message: "Password updated successfully. You can now log in." });
 });
-
-
-
-
 
 module.exports = router;

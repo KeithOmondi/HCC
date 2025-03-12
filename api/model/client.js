@@ -16,7 +16,7 @@ const clientSchema = new mongoose.Schema({
     type: String,
     required: [true, "Please enter your password"],
     minLength: [4, "Password should be at least 4 characters long"],
-    select: false,
+    select: false, // Prevent password from being fetched unless explicitly requested
   },
   phoneNumber: {
     type: String,
@@ -33,14 +33,13 @@ const clientSchema = new mongoose.Schema({
   ],
   role: {
     type: String,
-    enum: ["client", "admin"], // Allow only "client" or "admin"
     default: "client",
   },
   avatar: {
     public_id: String,
     url: {
       type: String,
-      default: "https://example.com/default-avatar.png", // Default avatar
+      default: "https://example.com/default-avatar.png",
     },
   },
   createdAt: {
@@ -54,20 +53,27 @@ const clientSchema = new mongoose.Schema({
 // 🔹 Hash password before saving
 clientSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
-  this.password = await bcrypt.hash(this.password, 10);
-  next();
+
+  try {
+    this.password = await bcrypt.hash(this.password, 10);
+    next();
+  } catch (error) {
+    next(error);
+  }
 });
+
+// 🔹 Compare password securely
+clientSchema.methods.comparePassword = async function (enteredPassword) {
+  return bcrypt.compare(enteredPassword, this.password);
+};
 
 // 🔹 Generate JWT token
 clientSchema.methods.getJwtToken = function () {
-  return jwt.sign({ id: this._id, role: this.role }, process.env.JWT_SECRET_KEY, {
-    expiresIn: process.env.JWT_EXPIRES,
-  });
-};
-
-// 🔹 Compare password
-clientSchema.methods.comparePassword = async function (enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
+  return jwt.sign(
+    { id: this._id, role: this.role },
+    process.env.JWT_SECRET_KEY,
+    { expiresIn: process.env.JWT_EXPIRES }
+  );
 };
 
 module.exports = mongoose.model("Client", clientSchema);

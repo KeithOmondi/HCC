@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import Header from "../Layout/Header";
+import Footer from "../Layout/Footer";
 
 const AboutUs = () => {
     return (
@@ -51,6 +52,8 @@ const AboutUs = () => {
                     </motion.div>
                 </div>
             </section>
+
+            <Footer />
         </>
     );
 };

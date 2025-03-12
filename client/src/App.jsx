@@ -13,7 +13,8 @@ import {
   AdminDashboardTransactions,
   AdminDashboardListings,
   AdminDashboardEvents,
-  ResetPasswordPage
+  ResetPasswordPage,
+  AdminLoginPage
 } from "./routes/AdminRoutes.js";
 import { ToastContainer } from "react-toastify";
 import Loader from "./pages/Loader.jsx";
@@ -25,8 +26,7 @@ import AboutUs from "./components/Company/AboutUs.jsx";
 import Careers from "./components/Company/Careers.jsx";
 import Checkout from "./components/Checkout/Checkout.jsx";
 import NotFound from "./components/NotFound/NotFound.jsx";
-// import ProfileContent from "./components/Profile/ProfileContent.jsx";
-//import ProtectedRoute from "./routes/ProtectedRoute.jsx";
+import ProtectedRoute from "./routes/ProtectedRoute"
 
 
 function App() {
@@ -78,7 +78,12 @@ function App() {
         <Route path="/aboutus" element={<AboutUs />} />
         <Route path="/careers" element={<Careers />} />
         <Route path="*" element={<NotFound />} />
-        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/checkout" element={
+          <ProtectedRoute>
+            <Checkout />
+          </ProtectedRoute>
+        } />
+        <Route path="/admin" element={<AdminLoginPage />} />
       </Routes>
       <ToastContainer
         position="bottom-center"
