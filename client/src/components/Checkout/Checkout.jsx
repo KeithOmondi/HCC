@@ -9,17 +9,6 @@ const Checkout = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const { client } = useSelector((state) => state.auth); // Get user from Redux
-
-   // Redirect if not logged in
-   useEffect(() => {
-    if (!client) {
-      toast.error("Please log in to proceed to checkout.");
-      navigate("/login"); // Redirect to login page
-    }
-  }, [client, navigate]);
-
-  if (!client) return null; // Prevents rendering if user is not logged in
 
   // Calculate total price
   const totalPrice = cart.reduce((acc, item) => {

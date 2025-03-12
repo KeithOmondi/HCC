@@ -40,6 +40,7 @@ const clientSchema = new mongoose.Schema({
     url: {
       type: String,
       default: "https://example.com/default-avatar.png",
+    require: false,
     },
   },
   createdAt: {
