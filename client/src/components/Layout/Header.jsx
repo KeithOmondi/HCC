@@ -26,7 +26,7 @@ const Header = () => {
   const { cart } = useSelector((state) => state.cart);
 
   useEffect(() => {
-    const storedUser = sessionStorage.getItem("user");
+    const storedUser = sessionStorage.getItem("client");
     if (storedUser) {
       const parsedUser = JSON.parse(storedUser);
       setUsername(parsedUser.name || "");

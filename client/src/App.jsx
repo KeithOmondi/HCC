@@ -79,9 +79,9 @@ function App() {
         <Route path="/careers" element={<Careers />} />
         <Route path="*" element={<NotFound />} />
         <Route path="/checkout" element={
-          <ProtectedRoute>
-            <Checkout />
-          </ProtectedRoute>
+
+          <Checkout />
+
         } />
         <Route path="/admin" element={<AdminLoginPage />} />
       </Routes>

@@ -14,7 +14,7 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+    setLoading(true);
     await axios
       .post(
         `${server}/client/login-client`,
@@ -22,7 +22,11 @@ const Login = () => {
         { withCredentials: true }
       )
       .then((res) => {
+        console.log(res.data)
+        setLoading(false);
         toast.success("Login Success!");
+        sessionStorage.setItem("token", res.data.token);
+        sessionStorage.setItem("client", JSON.stringify(res.data.user));
         navigate("/");
         window.location.reload(true);
       })
@@ -31,7 +35,7 @@ const Login = () => {
         toast.error(err.response?.data?.message || "An error occurred. Please try again.");
       });
   };
-  
+
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -108,9 +112,8 @@ const Login = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className={`w-full h-[40px] flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${
-                  loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
-                }`}
+                className={`w-full h-[40px] flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
+                  }`}
                 aria-label="Login Button"
               >
                 {loading ? "Logging in..." : "Submit"}

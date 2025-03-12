@@ -13,7 +13,7 @@ const Cart = ({ setOpenCart }) => {
   const navigate = useNavigate();
 
   // Check if user is logged in
-  const isLoggedIn = useMemo(() => !!localStorage.getItem("client"), []);
+  // const isLoggedIn = useMemo(() => !!sessionStorage.getItem("client"), []);
 
   const removeFromCartHandler = (data) => {
     dispatch(removeFromCart(data));
@@ -29,14 +29,19 @@ const Cart = ({ setOpenCart }) => {
   };
 
   const handleCheckout = () => {
-    if (!isLoggedIn) {
+    const storedUser = sessionStorage.getItem("client");
+    const user = storedUser ? JSON.parse(storedUser) : null;
+
+    if (!user || !user.role) {
       toast.error("You need to log in before checking out.");
-      localStorage.setItem("redirectAfterLogin", "/checkout");
       navigate("/login");
-      return;
+      return; // Stop further execution
     }
+
     navigate("/checkout");
   };
+
+
 
   return (
     <div className="fixed top-0 left-0 w-full bg-[#0000004b] h-screen z-[99999] flex justify-end">
