@@ -7,7 +7,7 @@ const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const jwt = require("jsonwebtoken");
 const sendMail = require("../utils/sendMail");
 const sendToken = require("../utils/jwtToken");
-const { isAuthenticated, isAdmin } = require("../middleware/auth");
+const { isAuthenticated  } = require("../middleware/auth");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 

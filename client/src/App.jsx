@@ -5,7 +5,7 @@ import {
   SignupPage,
   ActivationPage,
   HomePage,
-} from "./routes/Routes.js";
+} from "./routes/Routes.jsx";
 import {
   AdminDashboardPage,
   AdminDashboardClients,
@@ -14,8 +14,8 @@ import {
   AdminDashboardListings,
   AdminDashboardEvents,
   ResetPasswordPage,
-  AdminLoginPage
-} from "./routes/AdminRoutes.js";
+  AdminLoginPage,
+} from "./routes/AdminRoutes.jsx";
 import { ToastContainer } from "react-toastify";
 import Loader from "./pages/Loader.jsx";
 import BlogAndEventsPage from "./components/BlogAndEventsPage/BlogAndEventsPage.jsx";
@@ -26,9 +26,7 @@ import AboutUs from "./components/Company/AboutUs.jsx";
 import Careers from "./components/Company/Careers.jsx";
 import Checkout from "./components/Checkout/Checkout.jsx";
 import NotFound from "./components/NotFound/NotFound.jsx";
-//import ProtectedRoute from "./routes/ProtectedRoute"
-import AdminRoute from "./routes/AdminProtectedRoute.jsx";
-
+import AdminProtectedRoute from "./routes/AdminProtectedRoute.jsx";
 
 function App() {
   const [loading, setLoading] = useState(false);
@@ -50,46 +48,29 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
-        <Route
-          path="/activation/:activation_token"
-          element={<ActivationPage />}
-        />
+        <Route path="/activation/:activation_token" element={<ActivationPage />} />
         <Route path="/events" element={<BlogAndEventsPage />} />
-
         <Route path="/rent" element={<RentingPage />} />
-        <Route path="/admin/dashboard" element={
-          <AdminRoute>
-            <AdminDashboardPage />
-          </AdminRoute>
-        } />
-        <Route path="/admin-client" element={<AdminDashboardClients />} />
-        <Route path="/admin-agent" element={<AdminDashboardAgents />} />
-        <Route
-          path="/admin-transaction"
-          element={<AdminDashboardTransactions />}
-        />
-        <Route
-          path="/admin-reset-password"
-          element={<ResetPasswordPage />}
-        />
-        <Route path="/admin-listing" element={<AdminDashboardListings />} />
-        <Route path="/admin-event" element={<AdminDashboardEvents />} />
-
-        {/* <Route path="/profile" element={<ProfileContent />} /> */}
-
-        <Route path="/events" element={<BlogAndEventsPage />} />
         <Route path="/services" element={<Services />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/aboutus" element={<AboutUs />} />
         <Route path="/careers" element={<Careers />} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/admin-login" element={<AdminLoginPage />} />
         <Route path="*" element={<NotFound />} />
-        <Route path="/checkout" element={
 
-          <Checkout />
-
-        } />
-        <Route path="/admin" element={<AdminLoginPage />} />
+        {/* ✅ Protect all Admin Routes */}
+        <Route element={<AdminProtectedRoute />}>
+          <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
+          <Route path="/admin-client" element={<AdminDashboardClients />} />
+          <Route path="/admin-agent" element={<AdminDashboardAgents />} />
+          <Route path="/admin-transaction" element={<AdminDashboardTransactions />} />
+          <Route path="/admin-reset-password" element={<ResetPasswordPage />} />
+          <Route path="/admin-listing" element={<AdminDashboardListings />} />
+          <Route path="/admin-event" element={<AdminDashboardEvents />} />
+        </Route>
       </Routes>
+
       <ToastContainer
         position="bottom-center"
         autoClose={5000}

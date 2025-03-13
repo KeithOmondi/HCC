@@ -17,6 +17,7 @@ const AdminDashboardMain = () => {
   const { agents } = useSelector((state) => state.agent);
 
   useEffect(() => {
+    console.log("AdminDashboard Mounted!");
     dispatch(getAllTransactionsOfAdmin());
     dispatch(getAllAgents());
   }, []);

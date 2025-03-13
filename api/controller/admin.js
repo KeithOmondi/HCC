@@ -1,8 +1,8 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
 const Admin = require("../model/admin");
 const adminAuth = require("../middleware/adminAuth");
+const adminToken = require("../utils/adminToken");
 const router = express.Router();
 
 // Admin Registration (For first-time setup)
@@ -24,37 +24,33 @@ router.post("/register", async (req, res) => {
     });
 
     await admin.save();
-    res.status(201).json({ message: "Admin registered successfully" });
+
+    // ✅ Generate token and send response
+    adminToken(admin, 201, res); 
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
   }
 });
-
 
 // Admin Login
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
-    
+
     const admin = await Admin.findOne({ email });
     if (!admin) return res.status(400).json({ message: "Admin not found" });
 
-    console.log("Entered password:", password);
-    console.log("Stored hashed password:", admin.password);
-
     const isMatch = await bcrypt.compare(password, admin.password);
-    console.log("Password match:", isMatch);
-
     if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
-    res.json({ message: "Login successful" });
+    // ✅ Generate token and send response
+    adminToken(admin, 200, res);
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Server error" });
   }
 });
-
 
 // Admin Logout
 router.get("/logout", (req, res) => {

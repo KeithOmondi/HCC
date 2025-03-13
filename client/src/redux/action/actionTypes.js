@@ -21,3 +21,8 @@ export const DELETE_CLIENT_ADDRESS_FAIL = "DeleteClientAddressFail";
 export const GET_ALL_CLIENTS_REQUEST = "GetAllClientsRequest";
 export const GET_ALL_CLIENTS_SUCCESS = "GetAllClientsSuccess";
 export const GET_ALL_CLIENTS_FAIL = "GetAllClientsFail";
+
+
+const ADMIN_LOGIN_SUCCESS = "ADMIN_LOGIN_SUCCESS";
+const ADMIN_LOGIN_FAIL = "ADMIN_LOGIN_FAIL";
+

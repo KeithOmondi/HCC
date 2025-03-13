@@ -1,29 +1,29 @@
 const initialState = {
-  adminToken: localStorage.getItem("adminToken") || null,
-  loading: false,
-  error: null,
-};
-
-export const adminReducer = (state = initialState, action) => {
-  switch (action.type) {
-    case "AdminLoginRequest":
-      return { ...state, loading: true, error: null };
-
-    case "AdminLoginSuccess":
-      return {
-        ...state,
-        loading: false,
-        adminToken: action.payload,
-        error: null,
-      };
-
-    case "AdminLoginFail":
-      return { ...state, loading: false, error: action.payload };
-
-    case "AdminLogout":
-      return { ...state, adminToken: null };
-
-    default:
-      return state;
-  }
-};
+    adminToken: localStorage.getItem("adminToken") || null,
+    loading: false,
+    error: null,
+  };
+  
+  const adminReducer = (state = initialState, action) => {
+    switch (action.type) {
+      case "ADMIN_LOGIN_REQUEST":
+        return { ...state, loading: true, error: null };
+  
+      case "ADMIN_LOGIN_SUCCESS":
+        localStorage.setItem("adminToken", action.payload.token); // ✅ Store in localStorage
+        return { ...state, adminToken: action.payload.token, loading: false };
+  
+      case "ADMIN_LOGIN_FAILURE":
+        return { ...state, error: action.payload, loading: false };
+  
+      case "ADMIN_LOGOUT":
+        localStorage.removeItem("adminToken");
+        return { ...state, adminToken: null };
+  
+      default:
+        return state;
+    }
+  };
+  
+  export default adminReducer;
+  

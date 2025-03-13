@@ -1,8 +1,16 @@
 const bcrypt = require("bcryptjs");
 
-const enteredPassword = "Admin1234"; // Your input password
-const hashedPassword = "$2a$10$psqZvW6q9Cno4Y5H/YVQ/O.cMLp.ymjF3DWIa7XGJwKaisxgOeJxW"; // Hashed password from DB
+const testPassword = async () => {
+  const originalPassword = "Admin1234";
 
-bcrypt.compare(enteredPassword, hashedPassword).then((match) => {
-  console.log("Password match:", match);
-});
+  // Hash the password
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(originalPassword, salt);
+  console.log("Hashed Password:", hashedPassword);
+
+  // Compare entered password with the hashed one
+  const isMatch = await bcrypt.compare(originalPassword, hashedPassword);
+  console.log("Password match:", isMatch);
+};
+
+testPassword();
