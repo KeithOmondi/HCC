@@ -26,7 +26,8 @@ import AboutUs from "./components/Company/AboutUs.jsx";
 import Careers from "./components/Company/Careers.jsx";
 import Checkout from "./components/Checkout/Checkout.jsx";
 import NotFound from "./components/NotFound/NotFound.jsx";
-import ProtectedRoute from "./routes/ProtectedRoute"
+//import ProtectedRoute from "./routes/ProtectedRoute"
+import AdminRoute from "./routes/AdminProtectedRoute.jsx";
 
 
 function App() {
@@ -56,7 +57,11 @@ function App() {
         <Route path="/events" element={<BlogAndEventsPage />} />
 
         <Route path="/rent" element={<RentingPage />} />
-        <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
+        <Route path="/admin/dashboard" element={
+          <AdminRoute>
+            <AdminDashboardPage />
+          </AdminRoute>
+        } />
         <Route path="/admin-client" element={<AdminDashboardClients />} />
         <Route path="/admin-agent" element={<AdminDashboardAgents />} />
         <Route

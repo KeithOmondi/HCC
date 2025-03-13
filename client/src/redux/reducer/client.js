@@ -14,93 +14,104 @@ const initialState = {
 export const clientReducer = createReducer(initialState, (builder) => {
   builder
     // Load Client
-    .addCase("LoadClientRequest", (state) => {
+    .addCase("LOAD_CLIENT_REQUEST", (state) => {
       state.loading = true;
     })
-    .addCase("LoadClientSuccess", (state, action) => {
+    .addCase("LOAD_CLIENT_SUCCESS", (state, action) => {
       state.isAuthenticated = true;
       state.loading = false;
       state.client = action.payload;
       state.error = null;
     })
-    .addCase("LoadClientFail", (state, action) => {
+    .addCase("LOAD_CLIENT_FAIL", (state, action) => {
       state.loading = false;
       state.error = action.payload;
       state.isAuthenticated = false;
     })
 
     // Update Client Info
-    .addCase("updateClientInfoRequest", (state) => {
+    .addCase("UPDATE_CLIENT_INFO_REQUEST", (state) => {
       state.loading = true;
     })
-    .addCase("updateClientInfoSuccess", (state, action) => {
+    .addCase("UPDATE_CLIENT_INFO_SUCCESS", (state, action) => {
       state.loading = false;
       state.client = action.payload;
       state.error = null;
       state.successMessage = "Client information updated successfully!";
     })
-    .addCase("updateClientInfoFailed", (state, action) => {
+    .addCase("UPDATE_CLIENT_INFO_FAILED", (state, action) => {
       state.loading = false;
       state.error = action.payload;
     })
 
     // Update Client Address
-    .addCase("updateClientAddressRequest", (state) => {
+    .addCase("UPDATE_CLIENT_ADDRESS_REQUEST", (state) => {
       state.addressLoading = true;
     })
-    .addCase("updateClientAddressSuccess", (state, action) => {
+    .addCase("UPDATE_CLIENT_ADDRESS_SUCCESS", (state, action) => {
       state.addressLoading = false;
       state.successMessage = action.payload.successMessage;
       state.client = action.payload.client;
       state.error = null;
     })
-    .addCase("updateClientAddressFailed", (state, action) => {
+    .addCase("UPDATE_CLIENT_ADDRESS_FAILED", (state, action) => {
       state.addressLoading = false;
       state.error = action.payload;
     })
 
     // Delete Client Address
-    .addCase("deleteClientAddressRequest", (state) => {
+    .addCase("DELETE_CLIENT_ADDRESS_REQUEST", (state) => {
       state.addressLoading = true;
     })
-    .addCase("deleteClientAddressSuccess", (state, action) => {
+    .addCase("DELETE_CLIENT_ADDRESS_SUCCESS", (state, action) => {
       state.addressLoading = false;
       state.successMessage = action.payload.successMessage;
       state.client = action.payload.client;
       state.error = null;
     })
-    .addCase("deleteClientAddressFailed", (state, action) => {
+    .addCase("DELETE_CLIENT_ADDRESS_FAILED", (state, action) => {
       state.addressLoading = false;
       state.error = action.payload;
     })
 
     // Get All Clients (Admin)
-    .addCase("getAllClientsRequest", (state) => {
+    .addCase("GET_ALL_CLIENTS_REQUEST", (state) => {
       state.clientsLoading = true;
     })
-    .addCase("getAllClientsSuccess", (state, action) => {
+    .addCase("GET_ALL_CLIENTS_SUCCESS", (state, action) => {
+      console.log("Clients fetched successfully:", action.payload); // Debugging
       state.clientsLoading = false;
       state.clients = action.payload;
       state.error = null;
+      state.successMessage = null; // Reset success message
     })
-    .addCase("getAllClientsFailed", (state, action) => {
+    .addCase("GET_ALL_CLIENTS_FAILED", (state, action) => {
       state.clientsLoading = false;
       state.error = action.payload;
     })
 
     // Logout Client
-    .addCase("LogoutSuccess", (state) => {
+    .addCase("LOGOUT_REQUEST", (state) => {
+      state.loading = true;
+    })
+    .addCase("LOGOUT_SUCCESS", (state) => {
       state.isAuthenticated = false;
       state.client = null;
+      state.clients = []; // Optional: Clear client list on logout
       state.error = null;
       state.successMessage = "Logged out successfully!";
+      state.loading = false;
+    })
+    .addCase("LOGOUT_FAILED", (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
     })
 
     // Clear Errors and Messages
-    .addCase("clearErrors", (state) => {
+    .addCase("CLEAR_ERRORS", (state) => {
       state.error = null;
     })
-    .addCase("clearMessages", (state) => {
+    .addCase("CLEAR_MESSAGES", (state) => {
       state.successMessage = null;
     });
 });

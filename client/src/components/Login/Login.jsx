@@ -22,7 +22,7 @@ const Login = () => {
         { withCredentials: true }
       )
       .then((res) => {
-        console.log(res.data)
+        console.log(res.data);
         setLoading(false);
         toast.success("Login Success!");
         sessionStorage.setItem("token", res.data.token);
@@ -32,10 +32,11 @@ const Login = () => {
       })
       .catch((err) => {
         console.error("Login Error:", err.response?.data || err.message);
-        toast.error(err.response?.data?.message || "An error occurred. Please try again.");
+        toast.error(
+          err.response?.data?.message || "An error occurred. Please try again."
+        );
       });
   };
-
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -49,7 +50,10 @@ const Login = () => {
           <form className="space-y-6" onSubmit={handleSubmit}>
             {/* Email Input */}
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Email address
               </label>
               <input
@@ -65,7 +69,10 @@ const Login = () => {
 
             {/* Password Input */}
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Password
               </label>
               <div className="mt-1 relative flex items-center">
@@ -84,7 +91,11 @@ const Login = () => {
                   onClick={() => setVisible(!visible)}
                   aria-label="Toggle password visibility"
                 >
-                  {visible ? <AiOutlineEye size={20} /> : <AiOutlineEyeInvisible size={20} />}
+                  {visible ? (
+                    <AiOutlineEye size={20} />
+                  ) : (
+                    <AiOutlineEyeInvisible size={20} />
+                  )}
                 </button>
               </div>
             </div>
@@ -98,11 +109,17 @@ const Login = () => {
                   id="remember-me"
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
-                <label htmlFor="remember-me" className="ml-2 text-sm text-gray-900">
+                <label
+                  htmlFor="remember-me"
+                  className="ml-2 text-sm text-gray-900"
+                >
                   Remember me
                 </label>
               </div>
-              <Link to="/forgot-password" className="text-sm text-blue-600 hover:text-blue-500">
+              <Link
+                to="/forgot-password"
+                className="text-sm text-blue-600 hover:text-blue-500"
+              >
                 Forgot your password?
               </Link>
             </div>
@@ -112,8 +129,9 @@ const Login = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className={`w-full h-[40px] flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
-                  }`}
+                className={`w-full h-[40px] flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white ${
+                  loading ? "bg-gray-400" : "bg-blue-600 hover:bg-blue-700"
+                }`}
                 aria-label="Login Button"
               >
                 {loading ? "Logging in..." : "Submit"}

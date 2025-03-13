@@ -11,6 +11,7 @@ import { useSelector } from "react-redux";
 import Cart from "../Cart/Cart";
 import Logo from "../../assets/logo.jpg";
 import styles from "../../styles/styles";
+import { server } from "../../server";
 
 const Header = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -26,10 +27,10 @@ const Header = () => {
   const { cart } = useSelector((state) => state.cart);
 
   useEffect(() => {
-    const storedUser = sessionStorage.getItem("client");
-    if (storedUser) {
-      const parsedUser = JSON.parse(storedUser);
-      setUsername(parsedUser.name || "");
+    const storedClient = sessionStorage.getItem("client");
+    if (storedClient) {
+      const parsedClient = JSON.parse(storedClient);
+      setUsername(parsedClient.name || "");
     }
   }, []);
 
@@ -38,13 +39,31 @@ const Header = () => {
     setRentDropdownOpen(false);
   };
 
-  const handleLogout = () => {
-    sessionStorage.removeItem("token");
-    sessionStorage.removeItem("user");
-    setUsername("");
-    toast.success("Logged out successfully!");
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      const response = await fetch(`${server}/client/logout`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${sessionStorage.getItem("token")}`,
+        },
+      });
+  
+      if (response.ok) {
+        sessionStorage.removeItem("token");
+        sessionStorage.removeItem("client");
+        setUsername("");
+        toast.success("Logged out successfully!");
+        navigate("/");
+      } else {
+        toast.error("Logout failed!");
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast.error("An error occurred!");
+    }
   };
+  
+  
 
   useEffect(() => {
     const pathToName = {

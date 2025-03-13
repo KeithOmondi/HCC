@@ -5,6 +5,7 @@ import { agentReducer } from "./reducer/agent";
 import { listingReducer } from "./reducer/listing";
 import { eventReducer } from "./reducer/event";
 import { cartReducer } from "./reducer/cart";
+import { adminReducer } from "./reducer/admin";
 
 
 const Store = configureStore({
@@ -14,7 +15,8 @@ const Store = configureStore({
         agent: agentReducer,
         listing: listingReducer,
         event: eventReducer,
-        cart: cartReducer
+        cart: cartReducer,
+        admin: adminReducer
     }
 })
 

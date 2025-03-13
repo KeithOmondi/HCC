@@ -172,6 +172,29 @@ router.post(
   })
 );
 
+//logout client
+router.post(
+  "/logout",
+  catchAsyncErrors(async (req, res, next) => {
+    try {
+      res.cookie("token", "", {
+        expires: new Date(0),
+        httpOnly: true,
+        sameSite: "none",
+      });
+
+      res.status(200).json({
+        success: true,
+        message: "Log out successful!",
+      });
+    } catch (error) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  })
+);
+
+
+
 
 
 // load client
@@ -198,8 +221,6 @@ router.get(
 
 router.get(
   "/admin-all-clients",
-  isAuthenticated,
-  isAdmin,
   catchAsyncErrors(async (req, res, next) => {
     try {
       const clients = await Client.find();

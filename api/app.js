@@ -30,6 +30,7 @@ const listing = require("./controller/listing");
 const transaction = require("./controller/transaction");
 const withdraw = require("./controller/withdraw");
 const event = require("./controller/event");
+const admin = require("./controller/admin")
 
 const payment = require("./controller/payment");
 
@@ -38,9 +39,9 @@ app.use("/api/v2/transaction", transaction);
 app.use("/api/v2/property", property);
 app.use("/api/v2/lisiting", listing);
 app.use("/api/v2/event", event);
-
 app.use("/api/v2/payment", payment);
 app.use("/api/v2/withdraw", withdraw);
+app.use("/api/v2/admin", admin)
 
 // it's for ErrorHandling
 app.use(ErrorHandler);
