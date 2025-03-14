@@ -29,6 +29,7 @@ const AdminLogin = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     dispatch(adminLogin(email, password, navigate)); // ✅ Pass navigate
+    
   };
 
   return (

@@ -15,6 +15,7 @@ export const adminLogin = (email, password, navigate) => async (dispatch) => {
     localStorage.setItem("adminToken", data.token);
 
     console.log("✅ Login successful, redirecting to dashboard...", data);
+    console.log("message", data)
     navigate("/admin-dashboard"); // ✅ Redirect after login
   } catch (error) {
     dispatch({ 

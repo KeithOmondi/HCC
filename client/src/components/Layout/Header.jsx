@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
-import { FaPlus, FaSearch, FaShoppingCart, FaPhoneAlt, FaBars, FaChevronDown } from "react-icons/fa";
+import { FaSearch, FaBars, FaChevronDown, FaTimes } from "react-icons/fa";
 import { IoIosArrowDown } from "react-icons/io";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -177,7 +177,7 @@ const Header = () => {
                   Company <IoIosArrowDown />
                 </button>
                 {dropdownOpen && (
-                  <div className="absolute mt-2 w-48 bg-white text-blue-950 shadow-lg rounded-lg">
+                  <div className="absolute text-2xl mt-2 w-48 bg-white text-blue-950 shadow-lg rounded-lg">
                     <ul className="py-2">
                       <li className="px-4 py-2 hover:bg-blue-50 cursor-pointer">
                         <Link to="/aboutus">About Us</Link>
@@ -242,140 +242,142 @@ const Header = () => {
         </div>
       </div>
       {openCart && <Cart setOpenCart={setOpenCart} />}
+
+
+
+      
       {/* Mobile Navigation Menu */}
-      {/*mobile navbar*/}
-      <div className="bg-gray-50 lg:hidden sticky top-0 z-50 backdrop-blur-lg bg-opacity-60 shadow-md">
-        <div className="flex justify-between items-center px-4 py-3 relative">
-          {/* Hamburger Menu */}
+      <div className="lg:hidden sticky top-0 z-50 backdrop-blur-lg bg-white bg-opacity-90 shadow-md">
+      <div className="flex justify-between items-center px-4 py-3 relative">
+        {/* Menu Toggle Button */}
+        <button
+          onClick={() => setMenuOpen(!menuOpen)}
+          className="text-blue-950 text-2xl z-50"
+        >
+          {menuOpen ? null : <FaBars />}
+        </button>
+
+        {/* Logo at the center */}
+        <Link to="/" className="absolute left-1/2 transform -translate-x-1/2">
+          <img src="/logo.png" alt="Logo" className="w-12 h-12" />
+        </Link>
+
+        {/* Cart Icon */}
+        <div className="relative cursor-pointer" onClick={() => setOpenCart(true)}>
+          <AiOutlineShoppingCart size={30} color="black" />
+          <span className="absolute right-0 top-0 rounded-full bg-[#3bc177] w-4 h-4 text-white font-mono text-[12px] leading-tight text-center">
+            {cart && cart.length}
+          </span>
+        </div>
+      </div>
+
+      {/* Sidebar Menu */}
+      <div
+        className={`fixed top-0 left-0 h-screen w-3/4 bg-white shadow-lg transform transition-transform duration-300 ease-in-out ${
+          menuOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        {/* Close Button inside Sidebar */}
+        <div className="flex justify-end p-4">
           <button
-            onClick={() => setMenuOpen(!menuOpen)}
+            onClick={() => setMenuOpen(false)}
             className="text-blue-950 text-2xl"
           >
-            <FaBars />
+            <FaTimes />
           </button>
+        </div>
 
-          {/* Logo at the center */}
-          <Link to="/" className="absolute left-1/2 transform -translate-x-1/2">
-            <img src={Logo} alt="Logo" className="w-12 h-12" />
+        <ul className="flex flex-col space-y-4 p-4">
+          <Link
+            to="/"
+            className="text-blue-950 hover:text-blue-700"
+            onClick={() => setMenuOpen(false)}
+          >
+            Home
           </Link>
 
-          {/* Cart Icon */}
-          <div className={`${styles.normalFlex}`}>
-            <div
-              className="relative cursor-pointer mr-[15px]"
-              onClick={() => setOpenCart(true)}
+          {/* Rent Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setRentDropdownOpen(!rentDropdownOpen)}
+              className="flex justify-between items-center w-full text-blue-950 hover:text-blue-700"
             >
-              <AiOutlineShoppingCart
-                size={30}
-                color="black"
-              />
-              <span className="absolute right-0 top-0 rounded-full bg-[#3bc177] w-4 h-4 top right p-0 m-0 text-white font-mono text-[12px] leading-tight text-center">
-                {cart && cart.length}
-              </span>
-            </div>
-          </div>
-        </div>
-        {openCart ? <Cart setOpenCart={setOpenCart} /> : null}
-
-
-
-        {/* Mobile Navigation Menu */}
-        {menuOpen && (
-          <div className="absolute top-14 left-0 w-full bg-white shadow-md z-40 transition-all">
-            <ul className="flex flex-col space-y-4 p-4">
-              <Link
-                to="/"
-                className="text-blue-950 hover:text-blue-700"
-                onClick={() => setMenuOpen(false)}
-              >
-                Home
-              </Link>
-
-              {/* Rent Dropdown */}
-              <div className="relative">
-                <button
-                  onClick={() => setRentDropdownOpen(!rentDropdownOpen)}
-                  className="flex justify-between items-center w-full text-blue-950 hover:text-blue-700"
-                >
-                  Rent <FaChevronDown className="ml-2" />
-                </button>
-                {rentDropdownOpen && (
-                  <div className="ml-4 mt-2 space-y-2">
-                    <ul className="py-2">
-                      {[
-                        "Warehouses",
-                        "Units",
-                        "Event Spaces",
-                        "Office Spaces",
-                      ].map((category, idx) => (
-                        <li
-                          key={idx}
-                          onClick={() => handleRentSelection("/rent", category)}
-                          className="px-4 py-2 hover:bg-blue-50 cursor-pointer"
-                        >
-                          Rent {category}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+              Rent <FaChevronDown className="ml-2" />
+            </button>
+            {rentDropdownOpen && (
+              <ul className="ml-4 mt-2 space-y-2">
+                {["Warehouses", "Units", "Event Spaces", "Office Spaces"].map(
+                  (category, idx) => (
+                    <li
+                      key={idx}
+                      className="px-4 py-2 hover:bg-blue-50 cursor-pointer"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      Rent {category}
+                    </li>
+                  )
                 )}
-              </div>
-
-              <Link
-                to="/events"
-                className="text-blue-950 hover:text-blue-700"
-                onClick={() => setMenuOpen(false)}
-              >
-                Blogs & Events
-              </Link>
-              <Link
-                to="/services"
-                className="text-blue-950 hover:text-blue-700"
-                onClick={() => setMenuOpen(false)}
-              >
-                Services
-              </Link>
-
-              {/* Company Dropdown */}
-              <div className="relative">
-                <button
-                  onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                  className="flex justify-between items-center w-full text-blue-950 hover:text-blue-700"
-                >
-                  Company <FaChevronDown className="ml-2" />
-                </button>
-                {userDropdownOpen && (
-                  <div className="ml-4 mt-2 space-y-2">
-                    <Link
-                      to="/aboutUs"
-                      className="block text-sm text-blue-950 hover:text-blue-700"
-                      onClick={() => setMenuOpen(false)}
-                    >
-                      About Us
-                    </Link>
-                    <Link
-                      to="/careers"
-                      className="block text-sm text-blue-950 hover:text-blue-700"
-                      onClick={() => setMenuOpen(false)}
-                    >
-                      Careers
-                    </Link>
-                    <Link
-                      to="/contact"
-                      className="block text-sm text-blue-950 hover:text-blue-700"
-                      onClick={() => setMenuOpen(false)}
-                    >
-                      Contact
-                    </Link>
-                  </div>
-
-                )}
-              </div>
-
-            </ul>
+              </ul>
+            )}
           </div>
-        )}
+
+          <Link
+            to="/events"
+            className="text-blue-950 hover:text-blue-700"
+            onClick={() => setMenuOpen(false)}
+          >
+            Blogs & Events
+          </Link>
+          <Link
+            to="/services"
+            className="text-blue-950 hover:text-blue-700"
+            onClick={() => setMenuOpen(false)}
+          >
+            Services
+          </Link>
+
+          {/* Company Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+              className="flex justify-between items-center w-full text-blue-950 hover:text-blue-700"
+            >
+              Company <FaChevronDown className="ml-2" />
+            </button>
+            {userDropdownOpen && (
+              <ul className="ml-4 mt-2 space-y-2">
+                <Link
+                  to="/aboutUs"
+                  className="block text-sm text-blue-950 hover:text-blue-700"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  About Us
+                </Link>
+                <Link
+                  to="/careers"
+                  className="block text-sm text-blue-950 hover:text-blue-700"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Careers
+                </Link>
+                <Link
+                  to="/contact"
+                  className="block text-sm text-blue-950 hover:text-blue-700"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Contact
+                </Link>
+              </ul>
+            )}
+          </div>
+        </ul>
       </div>
+
+      <div>
+        
+      </div>
+    </div>
+      
     </>
   );
 };

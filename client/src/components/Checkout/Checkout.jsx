@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import Header from "../Layout/Header";
 
@@ -9,6 +9,8 @@ const Checkout = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const dispatch = useDispatch();
+  //const navigate = useNavigate()
 
   // Calculate total price
   const totalPrice = cart.reduce((acc, item) => {
@@ -17,35 +19,42 @@ const Checkout = () => {
   }, 0);
 
   // Handle Payment
-  const handlePayment = () => {
-    console.log("Payment button clicked"); // Debugging
+const handlePayment = () => {
+  console.log("Payment button clicked"); // Debugging
 
-    if (!name.trim()) {
-      toast.error("Please enter your full name");
-      return;
-    }
+  if (!name.trim()) {
+    toast.error("Please enter your full name");
+    return;
+  }
 
-    if (!email.trim() || !/\S+@\S+\.\S+/.test(email)) {
-      toast.error("Please enter a valid email address");
-      return;
-    }
+  if (!email.trim() || !/\S+@\S+\.\S+/.test(email)) {
+    toast.error("Please enter a valid email address");
+    return;
+  }
 
-    const trimmedPhone = phoneNumber.trim();
-    if (!trimmedPhone || !/^\d{10}$/.test(trimmedPhone)) {
-      toast.error("Please enter a valid 10-digit M-Pesa phone number");
-      return;
-    }
+  const trimmedPhone = phoneNumber.trim();
+  if (!trimmedPhone || !/^\d{10}$/.test(trimmedPhone)) {
+    toast.error("Please enter a valid 10-digit M-Pesa phone number");
+    return;
+  }
 
-    toast.success("Processing M-Pesa payment...");
+  toast.success("Processing M-Pesa payment...");
 
-    // Simulate clearing cart after successful payment
-    setTimeout(() => {
-      toast.success("Payment successful! Order placed.");
-      setPhoneNumber("");
-      setName("");
-      setEmail("");
-    }, 2000);
-  };
+  // ✅ Simulate payment processing
+  setTimeout(() => {
+    toast.success("Payment successful! Order placed.");
+
+    // ✅ Dispatch clearCart action after payment
+    dispatch(clearCart());
+
+    // ✅ Reset input fields
+    setPhoneNumber("");
+    setName("");
+    setEmail("");
+  }, 2000);
+};
+
+  
 
   return (
     <>
