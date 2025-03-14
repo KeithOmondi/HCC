@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { adminLogin } from "../../redux/action/admin";
@@ -9,22 +9,9 @@ const AdminLogin = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  // Get admin state from Redux
-  const { adminToken, loading, error } = useSelector((state) => state?.admin || {});
 
-  // Debugging Redux State
-  // useEffect(() => {
-   
-  
-  //   if (adminToken) {  // ✅ Check Redux state first
-  //     //console.log("✅ Redirecting to /admin-dashboard...");
-  //     navigate("/admin-dashboard", { replace: true });
-  //   }
-  // }, [adminToken, navigate]);  // ✅ Depend on adminToken & navigate
-  
-  
-  
-  
+  const { loading, error } = useSelector((state) => state?.admin || {});
+
 
   const handleSubmit = (e) => {
     e.preventDefault();

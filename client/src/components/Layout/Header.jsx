@@ -47,7 +47,7 @@ const Header = () => {
           Authorization: `Bearer ${sessionStorage.getItem("token")}`,
         },
       });
-  
+
       if (response.ok) {
         sessionStorage.removeItem("token");
         sessionStorage.removeItem("client");
@@ -62,8 +62,8 @@ const Header = () => {
       toast.error("An error occurred!");
     }
   };
-  
-  
+
+
 
   useEffect(() => {
     const pathToName = {
@@ -74,6 +74,9 @@ const Header = () => {
       "/aboutus": "Company",
       "/careers": "Company",
       "/contact": "Company",
+      "/agent-login": "Agent",
+      "/profile": "Profile",
+      "/settings": "Settings",
     };
 
     let matchedPath = Object.keys(pathToName).find((key) => location.pathname === key);
@@ -211,6 +214,10 @@ const Header = () => {
                   </span>
                 </div>
               </div>
+              <Link to="/agent-login" className="px-4 py-2 bg-green-600 text-white rounded-full text-sm hover:bg-green-700">
+                Become an Agent
+              </Link>
+
 
               {username ? (
                 <div className="relative">
@@ -222,9 +229,17 @@ const Header = () => {
                   </button>
                   {userDropdownOpen && (
                     <div className="absolute mt-2 w-40 bg-gray-100 shadow-lg rounded-lg">
-                      <ul className="py-2">
-                        <Link to="/profile" className="px-4 py-2 hover:bg-blue-50 cursor-pointer">Profile</Link>
-                        <li className="px-4 py-2 hover:bg-blue-50 cursor-pointer">Settings</li>
+                      <ul className="py-2 flex flex-col">
+                        <Link to="/profile" className={`${activeLink === "Profile"
+                          ? "border-b-2 border-blue-950 px-4 py-2 text-blue-950 font-bold text-base"
+                          : "text-blue-950"
+                          } transition hover:border-b-2 px-4 py-2 hover:border-blue-950 hover:font-bold hover:text-base`}
+                        >Profile</Link>
+                        <Link to="/settings" className={`${activeLink === "Settings"
+                          ? "border-b-2 border-blue-950 px-4 py-2 text-blue-950 font-bold text-base"
+                          : "text-blue-950"
+                          } transition hover:border-b-2 px-4 py-2 hover:border-blue-950 hover:font-bold hover:text-base`}
+                        >Settings</Link>
                         <li className="px-4 py-2 hover:bg-red-100 text-red-600 cursor-pointer" onClick={handleLogout}>
                           Logout
                         </li>
@@ -335,6 +350,10 @@ const Header = () => {
               >
                 Services
               </Link>
+              <Link to="/agent-login" className="px-4 py-2 text-white rounded-full text-sm hover:bg-green-700">
+                Become an Agent
+              </Link>
+
 
               {/* Company Dropdown */}
               <div className="relative">
