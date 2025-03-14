@@ -27,6 +27,10 @@ import Careers from "./components/Company/Careers.jsx";
 import Checkout from "./components/Checkout/Checkout.jsx";
 import NotFound from "./components/NotFound/NotFound.jsx";
 import AdminProtectedRoute from "./routes/AdminProtectedRoute.jsx";
+import AgentDashboard from "./components/Agent/AgentDashboard.jsx";
+import AgentLogin from "./components/Login/AgentLogin.jsx";
+import Profile from "./components/Layout/Profile.jsx";
+import Settings from "./components/Layout/Settings.jsx";
 
 function App() {
   const [loading, setLoading] = useState(false);
@@ -58,6 +62,8 @@ function App() {
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/admin-login" element={<AdminLoginPage />} />
         <Route path="*" element={<NotFound />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/settings" element={<Settings />} />
 
         {/* ✅ Protect all Admin Routes */}
         <Route element={<AdminProtectedRoute />}>
@@ -69,6 +75,11 @@ function App() {
           <Route path="/admin-listing" element={<AdminDashboardListings />} />
           <Route path="/admin-event" element={<AdminDashboardEvents />} />
         </Route>
+
+
+        {/* Agent Routes */}
+        <Route path="/agent-dashboard" element={<AgentDashboard />} />
+        <Route path="/agent-login" element={<AgentLogin />} />
       </Routes>
 
       <ToastContainer
