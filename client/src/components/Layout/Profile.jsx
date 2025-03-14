@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { AiOutlineCamera } from "react-icons/ai";
 import axios from "axios";
-import toast from "react-hot-toast";
+//import toast from "react-hot-toast";
+
 import Header from "./Header";
 
 const Profile = () => {

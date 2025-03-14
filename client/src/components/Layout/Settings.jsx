@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { Switch } from "@headlessui/react";
 import { BsMoon, BsSun } from "react-icons/bs";
-import toast from "react-hot-toast";
+//import toast from "react-hot-toast";
 import Header from "./Header";
+import { toast } from "react-toastify";
 
 const Settings = () => {
     const [darkMode, setDarkMode] = useState(() => {
