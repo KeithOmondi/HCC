@@ -348,7 +348,7 @@ const Header = () => {
               <ul className="ml-4 mt-2 space-y-2">
                 <Link
                   to="/aboutUs"
-                  className="block text-sm text-blue-950 hover:text-blue-700"
+                  className="block text-[10px] text-blue-950 hover:text-blue-700"
                   onClick={() => setMenuOpen(false)}
                 >
                   About Us
