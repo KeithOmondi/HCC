@@ -6,22 +6,30 @@ export const adminLogin = (email, password, navigate) => async (dispatch) => {
   const ADMIN_LOGIN_FAILURE = "ADMIN_LOGIN_FAILURE";
 
   try {
-    dispatch({ type: "ADMIN_LOGIN_REQUEST" }); // ✅ Set loading state
+    dispatch({ type: "ADMIN_LOGIN_REQUEST" }); // ✅ Start loading
 
-    const { data } = await axios.post(`${server}/admin/login`, { email, password });
+    // Send login request
+    const { data } = await axios.post(`${server}/admin/login`, {
+      email,
+      password,
+    });
 
-    dispatch({ type: ADMIN_LOGIN_SUCCESS, payload: { token: data.token } }); // ✅ Fix payload
+    if (!data.token) throw new Error("Token not received!"); // ✅ Ensure token is received
 
+    // Dispatch success action
+    dispatch({ type: ADMIN_LOGIN_SUCCESS, payload: { token: data.token } });
+
+    // Store token in localStorage
     localStorage.setItem("adminToken", data.token);
 
-    console.log("✅ Login successful, redirecting to dashboard...", data);
-    console.log("message", data)
-    navigate("/admin-dashboard"); // ✅ Redirect after login
+    console.log("✅ Login successful:", data);
+    navigate("/admin-dashboard"); // ✅ Redirect to admin dashboard
   } catch (error) {
-    dispatch({ 
-      type: ADMIN_LOGIN_FAILURE, 
-      payload: error.response?.data?.message || "Login failed" 
+    //console.error("❌ Login Error:", error.response?.data || error.message);
+
+    dispatch({
+      type: ADMIN_LOGIN_FAILURE,
+      payload: error.response?.data?.message || "Login failed",
     });
   }
 };
-

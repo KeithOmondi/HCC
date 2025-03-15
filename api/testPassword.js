@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs");
 
 const testPassword = async () => {
-  const originalPassword = "Admin1234";
+  const originalPassword = "Admin@1234";
 
   // Hash the password
   const salt = await bcrypt.genSalt(10);

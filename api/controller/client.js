@@ -116,31 +116,6 @@ router.post(
 );
 
 
-//create admin
-const createAdminIfNotExists = async () => {
-  try {
-    const existingAdmin = await Client.findOne({ role: "admin" });
-
-    if (!existingAdmin) {
-      const oneTimePassword = "Admin@1234"; // Default one-time password
-      const hashedPassword = await bcrypt.hash(oneTimePassword, 10);
-
-      const admin = await Client.create({
-        name: "Admin",
-        email: "admin@example.com",
-        password: hashedPassword,
-        role: "admin",
-        forcePasswordChange: true, // Flag to force password reset
-      });
-
-      console.log("Admin created with default password:", oneTimePassword);
-    }
-  } catch (error) {
-    console.error("Error creating admin:", error);
-  }
-};
-
-createAdminIfNotExists();
 
 
 // Login client/admin

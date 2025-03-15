@@ -313,28 +313,36 @@ const Header = () => {
 
             {/* Rent Dropdown */}
             <div className="relative">
-              <button
-                onClick={() => setRentDropdownOpen(!rentDropdownOpen)}
-                className="flex justify-between items-center w-full text-blue-950 hover:text-blue-700"
-              >
-                Rent <FaChevronDown className="ml-2" />
-              </button>
-              {rentDropdownOpen && (
-                <ul className="ml-4 mt-2 space-y-2">
-                  {["Warehouses", "Units", "Event Spaces", "Office Spaces"].map(
-                    (category, idx) => (
-                      <li
-                        key={idx}
-                        className="px-4 py-2 hover:bg-blue-50 cursor-pointer"
-                        onClick={() => setMenuOpen(false)}
-                      >
-                        Rent {category}
-                      </li>
-                    )
-                  )}
-                </ul>
-              )}
-            </div>
+                <button
+                  onClick={() => setRentDropdownOpen(!rentDropdownOpen)}
+                  className={`${activeLink === "Rent"
+                    ? "border-b-2 border-blue-950 flex items-center gap-1 font-bold text-base"
+                    : "text-blue-950"
+                    } transition hover:border-b-2 hover:border-blue-950 hover:font-bold hover:text-base flex items-center gap-1`}
+                >
+                  Rent <IoIosArrowDown />
+                </button>
+                {rentDropdownOpen && (
+                  <div className="absolute mt-2 w-48 bg-white text-blue-950 shadow-lg rounded-lg">
+                    <ul className="py-2">
+                      {[
+                        "Warehouses",
+                        "Units",
+                        "Event Spaces",
+                        "Office Spaces",
+                      ].map((category, idx) => (
+                        <li
+                          key={idx}
+                          onClick={() => handleRentSelection("/rent", category)}
+                          className="px-4 py-2 hover:bg-blue-50 cursor-pointer"
+                        >
+                          Rent {category}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
 
             <Link
               to="/events"
