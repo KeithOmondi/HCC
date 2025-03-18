@@ -5,6 +5,7 @@ import {
   SignupPage,
   ActivationPage,
   HomePage,
+  AgentActivationPage
 } from "./routes/Routes.jsx";
 import {
   AdminDashboardPage,
@@ -16,6 +17,10 @@ import {
   ResetPasswordPage,
   AdminLoginPage,
 } from "./routes/AdminRoutes.jsx";
+import {
+  AgentSignupPage,
+  AgentLoginPage
+} from "./routes/AgentRoute.jsx"
 import { ToastContainer } from "react-toastify";
 import Loader from "./pages/Loader.jsx";
 import BlogAndEventsPage from "./components/BlogAndEventsPage/BlogAndEventsPage.jsx";
@@ -28,7 +33,7 @@ import Checkout from "./components/Checkout/Checkout.jsx";
 import NotFound from "./components/NotFound/NotFound.jsx";
 import AdminProtectedRoute from "./routes/AdminProtectedRoute.jsx";
 import AgentDashboard from "./components/Agent/AgentDashboard.jsx";
-import AgentLogin from "./components/Login/AgentLogin.jsx";
+//import AgentLogin from "./components/Login/AgentLogin.jsx";
 import Profile from "./components/Layout/Profile.jsx";
 import Settings from "./components/Layout/Settings.jsx";
 
@@ -66,7 +71,7 @@ function App() {
         <Route path="/settings" element={<Settings />} />
 
         {/* ✅ Protect all Admin Routes */}
-        <Route element={<AdminProtectedRoute />}>
+        
           <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
           <Route path="/admin-client" element={<AdminDashboardClients />} />
           <Route path="/admin-agent" element={<AdminDashboardAgents />} />
@@ -74,12 +79,17 @@ function App() {
           <Route path="/admin-reset-password" element={<ResetPasswordPage />} />
           <Route path="/admin-listing" element={<AdminDashboardListings />} />
           <Route path="/admin-event" element={<AdminDashboardEvents />} />
-        </Route>
+       
 
 
         {/* Agent Routes */}
         <Route path="/agent-dashboard" element={<AgentDashboard />} />
-        <Route path="/agent-login" element={<AgentLogin />} />
+        <Route path="/agent-signup" element={<AgentSignupPage />} />
+        <Route path="/agent-login" element={<AgentLoginPage />} />
+        <Route
+          path="/agent/activation/:activation_token"
+          element={<AgentActivationPage />}
+        />
       </Routes>
 
       <ToastContainer

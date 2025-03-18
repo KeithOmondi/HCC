@@ -1,240 +1,211 @@
 const express = require("express");
-const Client = require("../model/client");
 const router = express.Router();
-const cloudinary = require("cloudinary");
+const cloudinary = require("cloudinary").v2;
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const Client = require("../model/client");
 const ErrorHandler = require("../utils/ErrorHandler");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
-const jwt = require("jsonwebtoken");
 const sendMail = require("../utils/sendMail");
 const sendToken = require("../utils/jwtToken");
-const { isAuthenticated  } = require("../middleware/auth");
-const bcrypt = require("bcryptjs");
-const crypto = require("crypto");
+const { isAuthenticated } = require("../middleware/auth");
 
-// create client
-router.post("/create-client", async (req, res, next) => {
-    try {
-      const { name, email, password, avatar } = req.body;
-      
-      console.log("Received request to create client:", { name, email }); // Log incoming request data
-  
-      const clientEmail = await Client.findOne({ email });
-  
-      if (clientEmail) {
-        console.warn("Client already exists:", email); // Log warning if user exists
-        return next(new ErrorHandler("Client already exists", 400));
-      }
-  
-      if (!avatar) {
-        console.error("Avatar missing in request body");
-        return next(new ErrorHandler("Avatar is required", 400));
-      }
-  
-      let myCloud;
-      try {
-        myCloud = await cloudinary.v2.uploader.upload(avatar, { folder: "avatars" });
-        console.log("Avatar uploaded successfully:", myCloud.secure_url);
-      } catch (uploadError) {
-        console.error("Error uploading avatar to Cloudinary:", uploadError);
-        return next(new ErrorHandler("Failed to upload avatar", 500));
-      }
-  
-      const client = {
-        name,
-        email,
-        password,
-        avatar: {
-          public_id: myCloud.public_id,
-          url: myCloud.secure_url,
-        },
-      };
-  
-      const activationToken = createActivationToken(client);
-      const activationUrl = `http://localhost:5173/activation/${activationToken}`;
-  
-      try {
-        console.log("Sending activation email to:", email);
-        await sendMail({
-          email: client.email,
-          subject: "Activate your account",
-          message: `Hello ${client.name}, please click on the link to activate your account: ${activationUrl}`,
-        });
-        res.status(201).json({
-          success: true,
-          message: `Please check your email: ${client.email} to activate your account!`,
-        });
-      } catch (mailError) {
-        console.error("Error sending activation email:", mailError);
-        return next(new ErrorHandler("Failed to send activation email", 500));
-      }
-    } catch (error) {
-      console.error("Unexpected server error:", error);
-      return next(new ErrorHandler(error.message, 400));
-    }
-  });
+const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
+const ACTIVATION_SECRET = process.env.ACTIVATION_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET;
 
-// create activation token
+// Create Activation Token
 const createActivationToken = (client) => {
-  return jwt.sign(client, process.env.ACTIVATION_SECRET, {
-    expiresIn: "5m",
-  });
+  return jwt.sign(client, ACTIVATION_SECRET, { expiresIn: "5m" });
 };
 
-// activate client
+// Create Client
+router.post(
+  "/create-client",
+  catchAsyncErrors(async (req, res, next) => {
+    const { name, email, password, avatar } = req.body;
+
+    console.log("Received request to create client:", { name, email });
+
+    if (!avatar) {
+      return next(new ErrorHandler("Avatar is required", 400));
+    }
+
+    const existingClient = await Client.findOne({ email });
+
+    if (existingClient) {
+      return next(new ErrorHandler("Client already exists", 400));
+    }
+
+    let myCloud;
+    try {
+      myCloud = await cloudinary.uploader.upload(avatar, { folder: "avatars" });
+      console.log("Avatar uploaded successfully:", myCloud.secure_url);
+    } catch (uploadError) {
+      console.error("Error uploading avatar to Cloudinary:", uploadError);
+      return next(new ErrorHandler("Failed to upload avatar", 500));
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const client = {
+      name,
+      email,
+      password: hashedPassword,
+      avatar: { public_id: myCloud.public_id, url: myCloud.secure_url },
+    };
+    const activationToken = createActivationToken(client);
+    const activationUrl = `${CLIENT_URL}/activation/${activationToken}`;
+
+    try {
+      console.log("Sending activation email to:", email);
+      await sendMail({
+        email,
+        subject: "Activate your account",
+        message: `Hello ${name}, please click the link to activate your account: ${activationUrl}`,
+      });
+
+      res.status(201).json({
+        success: true,
+        message: `Please check your email (${email}) to activate your account!`,
+      });
+    } catch (mailError) {
+      console.error("Error sending activation email:", mailError);
+      return next(new ErrorHandler("Failed to send activation email", 500));
+    }
+  })
+);
+
+// Activate Client
 router.post(
   "/activation",
   catchAsyncErrors(async (req, res, next) => {
+    const { activation_token } = req.body;
+    let newClient;
+
     try {
-      const { activation_token } = req.body;
-      const newClient = jwt.verify(
-        activation_token,
-        process.env.ACTIVATION_SECRET
-      );
-
-      if (!newClient) {
-        return next(new ErrorHandler("Invalid token", 400));
-      }
-      const { name, email, password, avatar } = newClient;
-
-      let client = await Client.findOne({ email });
-
-      if (client) {
-        return next(new ErrorHandler("Client already exists", 400));
-      }
-      client = await Client.create({
-        name,
-        email,
-        avatar,
-        password,
-      });
-
-      sendToken(client, 201, res);
+      newClient = jwt.verify(activation_token, ACTIVATION_SECRET);
     } catch (error) {
-      return next(new ErrorHandler(error.message, 500));
+      return next(new ErrorHandler("Invalid or expired activation token", 400));
     }
+
+    const { name, email, password, avatar } = newClient;
+    let client = await Client.findOne({ email });
+
+    if (client) {
+      return next(new ErrorHandler("Client already exists", 400));
+    }
+
+    client = await Client.create({ name, email, password, avatar });
+    sendToken(client, 201, res);
   })
 );
 
-
-
-
-// Login client/admin
+// Login Client/Admin
 router.post(
   "/login-client",
   catchAsyncErrors(async (req, res, next) => {
-    try {
-      const { email, password } = req.body;
+    const { email, password } = req.body;
 
-      if (!email || !password) {
-        return next(new ErrorHandler("Please provide all fields!", 400));
-      }
-
-      const client = await Client.findOne({ email }).select("+password");
-
-      if (!client) {
-        return next(new ErrorHandler("User doesn't exist!", 400));
-      }
-
-      const isPasswordValid = await client.comparePassword(password);
-      if (!isPasswordValid) {
-        return next(new ErrorHandler("Incorrect credentials", 400));
-      }
-
-      sendToken(client, 201, res);
-    } catch (error) {
-      return next(new ErrorHandler(error.message, 500));
+    if (!email || !password) {
+      return next(new ErrorHandler("Email and password are required!", 400));
     }
+
+    const client = await Client.findOne({ email }).select("+password");
+    if (!client) {
+      return next(new ErrorHandler("User does not exist!", 400));
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, client.password);
+    if (!isPasswordValid) {
+      return next(new ErrorHandler("Incorrect credentials", 400));
+    }
+
+    sendToken(client, 200, res);
   })
 );
 
-//logout client
+// Logout Client
 router.post(
   "/logout",
   catchAsyncErrors(async (req, res, next) => {
-    try {
-      res.cookie("token", "", {
-        expires: new Date(0),
-        httpOnly: true,
-        sameSite: "none",
-      });
+    res.cookie("token", "", {
+      expires: new Date(0),
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "Strict",
+    });
 
-      res.status(200).json({
-        success: true,
-        message: "Log out successful!",
-      });
-    } catch (error) {
-      return next(new ErrorHandler(error.message, 500));
-    }
+    res.status(200).json({
+      success: true,
+      message: "Log out successful!",
+    });
   })
 );
 
-
-
-
-
-// load client
+// Load Client (Authenticated)
 router.get(
   "/getclient",
   isAuthenticated,
   catchAsyncErrors(async (req, res, next) => {
-    try {
-      const client = await Client.findById(req.client.id);
+    const client = await Client.findById(req.user.id);
 
-      if (!client) {
-        return next(new ErrorHandler("Client doesn't exist", 400));
-      }
-
-      res.status(200).json({
-        success: true,
-        client,
-      });
-    } catch (error) {
-      return next(new ErrorHandler(error.message, 500));
+    if (!client) {
+      return next(new ErrorHandler("Client does not exist", 400));
     }
+
+    res.status(200).json({ success: true, client });
   })
 );
 
+// Admin - Get All Clients
 router.get(
   "/admin-all-clients",
+  isAuthenticated,
   catchAsyncErrors(async (req, res, next) => {
-    try {
-      const clients = await Client.find();
-      res.status(200).json({
-        success: true,
-        clients,
-      });
-    } catch (error) {
-      return next(new ErrorHandler(error.message, 500));
-    }
+    const clients = await Client.find();
+    res.status(200).json({ success: true, clients });
   })
 );
 
+// Admin - Reset Password (Now Sends Email Instead of Direct Reset)
+router.post(
+  "/reset-admin-password",
+  catchAsyncErrors(async (req, res, next) => {
+    const { email } = req.body;
 
-//admin password reset
-router.post("/reset-admin-password", async (req, res) => {
-  const { email, newPassword } = req.body;
-  
-  if (!email || !newPassword) {
-    return res.status(400).json({ message: "Please provide all fields!" });
-  }
+    if (!email) {
+      return res.status(400).json({ message: "Email is required!" });
+    }
 
-  const admin = await Client.findOne({ email, role: "admin" });
+    const admin = await Client.findOne({ email, role: "admin" });
 
-  if (!admin) {
-    return res.status(404).json({ message: "Admin not found!" });
-  }
+    if (!admin) {
+      return res.status(404).json({ message: "Admin not found!" });
+    }
 
-  const hashedPassword = await bcrypt.hash(newPassword, 10);
-  admin.password = hashedPassword;
-  admin.forcePasswordChange = false; // Remove flag after reset
+    const resetToken = jwt.sign({ id: admin._id }, JWT_SECRET, {
+      expiresIn: "15m",
+    });
 
-  await admin.save();
+    const resetUrl = `${CLIENT_URL}/reset-password/${resetToken}`;
 
-  res.status(200).json({ message: "Password updated successfully. You can now log in." });
-});
+    try {
+      await sendMail({
+        email,
+        subject: "Password Reset Request",
+        message: `Click the link below to reset your password:\n\n${resetUrl}\n\nThis link expires in 15 minutes.`,
+      });
 
-
-
-
+      res.status(200).json({
+        success: true,
+        message: "Password reset email sent! Check your inbox.",
+      });
+    } catch (mailError) {
+      console.error("Error sending reset email:", mailError);
+      return next(new ErrorHandler("Failed to send reset email", 500));
+    }
+  })
+);
 
 module.exports = router;

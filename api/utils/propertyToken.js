@@ -1,6 +1,6 @@
 // create token and saving that in cookies
-const sendPropertyToken = (user, statusCode, res) => {
-    const token = user.getJwtToken();
+const propertyToken = (agent, statusCode, res) => {
+    const token = agent.getJwtToken();
   
     // Options for cookies
     const options = {
@@ -12,10 +12,10 @@ const sendPropertyToken = (user, statusCode, res) => {
   
     res.status(statusCode).cookie("agent_token", token, options).json({
       success: true,
-      user,
+      agent,
       token,
     });
   };
   
-  module.exports = sendPropertyToken;
+  module.exports = propertyToken;
   

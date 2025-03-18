@@ -39,7 +39,7 @@ export const clientReducer = createReducer(initialState, (builder) => {
       state.error = null;
       state.successMessage = "Client information updated successfully!";
     })
-    .addCase("UPDATE_CLIENT_INFO_FAILED", (state, action) => {
+    .addCase("UPDATE_CLIENT_INFO_FAIL", (state, action) => {
       state.loading = false;
       state.error = action.payload;
     })
@@ -50,11 +50,11 @@ export const clientReducer = createReducer(initialState, (builder) => {
     })
     .addCase("UPDATE_CLIENT_ADDRESS_SUCCESS", (state, action) => {
       state.addressLoading = false;
-      state.successMessage = action.payload.successMessage;
       state.client = action.payload.client;
+      state.successMessage = action.payload.successMessage;
       state.error = null;
     })
-    .addCase("UPDATE_CLIENT_ADDRESS_FAILED", (state, action) => {
+    .addCase("UPDATE_CLIENT_ADDRESS_FAIL", (state, action) => {
       state.addressLoading = false;
       state.error = action.payload;
     })
@@ -65,11 +65,11 @@ export const clientReducer = createReducer(initialState, (builder) => {
     })
     .addCase("DELETE_CLIENT_ADDRESS_SUCCESS", (state, action) => {
       state.addressLoading = false;
-      state.successMessage = action.payload.successMessage;
       state.client = action.payload.client;
+      state.successMessage = action.payload.successMessage;
       state.error = null;
     })
-    .addCase("DELETE_CLIENT_ADDRESS_FAILED", (state, action) => {
+    .addCase("DELETE_CLIENT_ADDRESS_FAIL", (state, action) => {
       state.addressLoading = false;
       state.error = action.payload;
     })
@@ -79,13 +79,11 @@ export const clientReducer = createReducer(initialState, (builder) => {
       state.clientsLoading = true;
     })
     .addCase("GET_ALL_CLIENTS_SUCCESS", (state, action) => {
-      console.log("Clients fetched successfully:", action.payload); // Debugging
       state.clientsLoading = false;
-      state.clients = action.payload;
+      state.clients = action.payload; // Ensure API returns full list
       state.error = null;
-      state.successMessage = null; // Reset success message
     })
-    .addCase("GET_ALL_CLIENTS_FAILED", (state, action) => {
+    .addCase("GET_ALL_CLIENTS_FAIL", (state, action) => {
       state.clientsLoading = false;
       state.error = action.payload;
     })
@@ -97,12 +95,11 @@ export const clientReducer = createReducer(initialState, (builder) => {
     .addCase("LOGOUT_SUCCESS", (state) => {
       state.isAuthenticated = false;
       state.client = null;
-      state.clients = []; // Optional: Clear client list on logout
       state.error = null;
       state.successMessage = "Logged out successfully!";
       state.loading = false;
     })
-    .addCase("LOGOUT_FAILED", (state, action) => {
+    .addCase("LOGOUT_FAIL", (state, action) => {
       state.loading = false;
       state.error = action.payload;
     })

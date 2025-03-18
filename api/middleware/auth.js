@@ -8,7 +8,7 @@ exports.isAuthenticated = catchAsyncErrors(async (req, res, next) => {
     const { token } = req.cookies;
 
     if (!token) {
-        return next(new ErrorHandler("Please login to continue", 401));
+        return next(new ErrorHandler("Access Denied, please contact the site admin", 401));
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
@@ -17,24 +17,31 @@ exports.isAuthenticated = catchAsyncErrors(async (req, res, next) => {
     next();
 });
 
-exports.isAgent = catchAsyncErrors(async (req, res, next) => {
-    const { agent_token } = req.cookies;
-    
-    if (!agent_token) {
-        return next(new ErrorHandler("Please login to continue", 401));
+exports.isAgent = catchAsyncErrors(async(req,res,next) => {
+    const {agent_token} = req.cookies;
+    if(!agent_token){
+        return next(new ErrorHandler("Access Denied, please contact the site admin", 401));
     }
 
     const decoded = jwt.verify(agent_token, process.env.JWT_SECRET_KEY);
+
     req.agent = await Property.findById(decoded.id);
 
     next();
 });
 
+
 exports.isAdmin = (...roles) => {
     return (req, res, next) => {
-        if (!roles.includes(req.client.role)) {
-            return next(new ErrorHandler(`${req.client.role} cannot access this resource!`));
+        const userRole = req.client?.role || req.agent?.role; // Check both client and agent roles
+        
+        if (!userRole || !roles.includes(userRole)) {
+            return next(new ErrorHandler("Access Denied, please contact the site admin", 403));
         }
+        
         next();
     };
 };
+
+
+
