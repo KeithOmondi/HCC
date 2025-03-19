@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 // eslint-disable-next-line no-unused-vars
 import { motion } from "framer-motion";
@@ -29,7 +28,7 @@ const Header = () => {
 
   useEffect(() => {
     const storedClient = sessionStorage.getItem("client");
-    
+
     if (storedClient) {
       try {
         const parsedClient = JSON.parse(storedClient);
@@ -39,7 +38,6 @@ const Header = () => {
       }
     }
   }, []);
-  
 
   const handleRentSelection = (path, category) => {
     navigate(`${path}?category=${encodeURIComponent(category)}`);
@@ -70,8 +68,6 @@ const Header = () => {
     }
   };
 
-
-
   useEffect(() => {
     const pathToName = {
       "/": "Home",
@@ -86,47 +82,62 @@ const Header = () => {
       "/settings": "Settings",
     };
 
-    let matchedPath = Object.keys(pathToName).find((key) => location.pathname === key);
+    let matchedPath = Object.keys(pathToName).find(
+      (key) => location.pathname === key
+    );
 
     if (!matchedPath) {
-      matchedPath = Object.keys(pathToName).find((key) => location.pathname.startsWith(key));
+      matchedPath = Object.keys(pathToName).find((key) =>
+        location.pathname.startsWith(key)
+      );
     }
 
     setActiveLink(pathToName[matchedPath] || "");
   }, [location.pathname]);
-
-
 
   return (
     <>
       <div className="bg-gray-50 sticky top-0 z-50 backdrop-blur-lg bg-opacity-60 hidden lg:block">
         <div className="shadow-md sticky top-0 z-50">
           <div className="mx-auto flex justify-between items-center px-6 py-3">
-            <img src={Logo} alt="Logo" className="w-10 h-10" />
+            {/* Logo */}
+            <Link to="/" className="flex items-center gap-2">
+              <img
+                src="https://res.cloudinary.com/drls2cpnu/image/upload/v1742378937/haoimg_tttjcs.png"
+                alt="Logo"
+                className="w-12 h-12 object-contain"
+              />
+              <span className="text-lg font-semibold text-blue-950">
+                HAOCHAPCHAP
+              </span>
+            </Link>
 
             {/* Navigation */}
             <nav className="flex items-center gap-6 text-sm">
-              <motion.div>
-                <Link
-                  to="/"
-                  className={`${activeLink === "Home"
-                    ? "border-b-2 border-blue-950 text-blue-950 font-bold text-base"
-                    : "text-blue-950"
+              {["Home", "Events", "Services"].map((item, idx) => (
+                <motion.div key={idx}>
+                  <Link
+                    to={item === "Home" ? "/" : `/${item.toLowerCase()}`}
+                    className={`${
+                      activeLink === item
+                        ? "border-b-2 border-blue-950 text-blue-950 font-bold text-base"
+                        : "text-blue-950"
                     } transition hover:border-b-2 hover:border-blue-950 hover:font-bold hover:text-base`}
-                >
-                  Home
-                </Link>
-              </motion.div>
+                  >
+                    {item}
+                  </Link>
+                </motion.div>
+              ))}
 
-              {/* Rent Dropdown */}
               {/* Rent Dropdown */}
               <div className="relative">
                 <button
                   onClick={() => setRentDropdownOpen(!rentDropdownOpen)}
-                  className={`${activeLink === "Rent"
-                    ? "border-b-2 border-blue-950 flex items-center gap-1 font-bold text-base"
-                    : "text-blue-950"
-                    } transition hover:border-b-2 hover:border-blue-950 hover:font-bold hover:text-base flex items-center gap-1`}
+                  className={`flex items-center gap-1 transition ${
+                    activeLink === "Rent"
+                      ? "border-b-2 border-blue-950 font-bold text-base"
+                      : "text-blue-950"
+                  } hover:border-b-2 hover:border-blue-950 hover:font-bold hover:text-base`}
                 >
                   Rent <IoIosArrowDown />
                 </button>
@@ -152,79 +163,59 @@ const Header = () => {
                 )}
               </div>
 
-              <motion.div>
-                <Link
-                  to="/events"
-                  className={`${activeLink === "Events"
-                    ? "border-b-2 border-blue-950 text-blue-950 font-bold text-base"
-                    : "text-blue-950"
-                    } transition hover:border-b-2 hover:border-blue-950 hover:font-bold hover:text-base`}
-                >
-                  Blogs & Events
-                </Link>
-              </motion.div>
-
-              <motion.div>
-                <Link
-                  to="/services"
-                  className={`${activeLink === "Services" ? "border-b-2 border-blue-950 text-blue-950 font-bold text-base" : "text-blue-950"}
-                  transition hover:border-b-2 hover:border-blue-950 hover:font-bold hover:text-base`}
-                >
-                  Services
-                </Link>
-              </motion.div>
-
               {/* Company Dropdown */}
               <div className="relative">
                 <button
                   onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className={`${activeLink === "Company"
-                    ? "border-b-2 border-blue-950 flex items-center gap-1 font-bold text-base"
-                    : "text-blue-950"
-                    } transition hover:border-b-2 hover:border-blue-950 hover:font-bold hover:text-base flex items-center gap-1`}
+                  className={`flex items-center gap-1 transition ${
+                    activeLink === "Company"
+                      ? "border-b-2 border-blue-950 font-bold text-base"
+                      : "text-blue-950"
+                  } hover:border-b-2 hover:border-blue-950 hover:font-bold hover:text-base`}
                 >
-
                   Company <IoIosArrowDown />
                 </button>
                 {dropdownOpen && (
-                  <div className="absolute text-2xl mt-2 w-48 bg-white text-blue-950 shadow-lg rounded-lg">
+                  <div className="absolute mt-2 w-48 bg-white text-blue-950 shadow-lg rounded-lg">
                     <ul className="py-2">
-                      <li className="px-4 py-2 hover:bg-blue-50 cursor-pointer">
-                        <Link to="/aboutus">About Us</Link>
-                      </li>
-                      <li className="px-4 py-2 hover:bg-blue-50 cursor-pointer">
-                        <Link to="/careers">Careers</Link>
-                      </li>
-                      <li className="px-4 py-2 hover:bg-blue-50 cursor-pointer">
-                        <Link to="/contact">Contact</Link>
-                      </li>
+                      {["About Us", "Careers", "Contact"].map((page, idx) => (
+                        <li
+                          key={idx}
+                          className="px-4 py-2 hover:bg-blue-50 cursor-pointer"
+                        >
+                          <Link to={`/${page.toLowerCase().replace(" ", "")}`}>
+                            {page}
+                          </Link>
+                        </li>
+                      ))}
                     </ul>
                   </div>
                 )}
               </div>
             </nav>
 
-            {/* Right Icons and User Profile */}
+            {/* Right Icons & User Profile */}
             <div className="flex items-center gap-4">
-              {/* <button className="flex items-center text-sm gap-1 bg-gray-100 hover:bg-blue-950 hover:text-white px-4 py-2 rounded-full">
-                <FaPlus /> Appointment
-              </button> */}
               <button className="bg-gray-100 hover:bg-blue-950 hover:text-white p-2 rounded-full">
                 <FaSearch />
               </button>
 
-              <div className={`${styles.normalFlex}`}>
-                <div className="relative cursor-pointer mr-[15px]" onClick={() => setOpenCart(true)}>
-                  <AiOutlineShoppingCart size={30} color="black" />
-                  <span className="absolute right-0 top-0 rounded-full bg-[#3bc177] w-4 h-4 text-white font-mono text-[12px] leading-tight text-center">
-                    {cart && cart.length}
-                  </span>
-                </div>
+              <div
+                className="relative cursor-pointer"
+                onClick={() => setOpenCart(true)}
+              >
+                <AiOutlineShoppingCart size={30} color="black" />
+                <span className="absolute right-0 top-0 rounded-full bg-[#3bc177] w-4 h-4 text-white font-mono text-[12px] leading-tight text-center">
+                  {cart && cart.length}
+                </span>
               </div>
-              <Link to="/agent-login" className="px-4 py-2 bg-green-600 text-white rounded-full text-sm hover:bg-green-700">
+
+              <Link
+                to="/agent-login"
+                className="px-4 py-2 bg-green-600 text-white rounded-full text-sm hover:bg-green-700"
+              >
                 Become an Agent
               </Link>
-
 
               {username ? (
                 <div className="relative">
@@ -237,17 +228,23 @@ const Header = () => {
                   {userDropdownOpen && (
                     <div className="absolute mt-2 w-40 bg-gray-100 shadow-lg rounded-lg">
                       <ul className="py-2 flex flex-col">
-                        <Link to="/profile" className={`${activeLink === "Profile"
-                          ? "border-b-2 border-blue-950 px-4 py-2 text-blue-950 font-bold text-base"
-                          : "text-blue-950"
-                          } transition hover:border-b-2 px-4 py-2 hover:border-blue-950 hover:font-bold hover:text-base`}
-                        >Profile</Link>
-                        <Link to="/settings" className={`${activeLink === "Settings"
-                          ? "border-b-2 border-blue-950 px-4 py-2 text-blue-950 font-bold text-base"
-                          : "text-blue-950"
-                          } transition hover:border-b-2 px-4 py-2 hover:border-blue-950 hover:font-bold hover:text-base`}
-                        >Settings</Link>
-                        <li className="px-4 py-2 hover:bg-red-100 text-red-600 cursor-pointer" onClick={handleLogout}>
+                        {["Profile", "Settings"].map((item, idx) => (
+                          <Link
+                            key={idx}
+                            to={`/${item.toLowerCase()}`}
+                            className={`${
+                              activeLink === item
+                                ? "border-b-2 border-blue-950 px-4 py-2 text-blue-950 font-bold text-base"
+                                : "text-blue-950"
+                            } transition hover:border-b-2 px-4 py-2 hover:border-blue-950 hover:font-bold hover:text-base`}
+                          >
+                            {item}
+                          </Link>
+                        ))}
+                        <li
+                          className="px-4 py-2 hover:bg-red-100 text-red-600 cursor-pointer"
+                          onClick={handleLogout}
+                        >
                           Logout
                         </li>
                       </ul>
@@ -255,7 +252,10 @@ const Header = () => {
                   )}
                 </div>
               ) : (
-                <Link to="/login" className="px-4 py-2 bg-blue-950 text-white rounded-full text-sm hover:bg-blue-800">
+                <Link
+                  to="/login"
+                  className="px-4 py-2 bg-blue-950 text-white rounded-full text-sm hover:bg-blue-800"
+                >
                   Login
                 </Link>
               )}
@@ -265,11 +265,8 @@ const Header = () => {
       </div>
       {openCart && <Cart setOpenCart={setOpenCart} />}
 
-
-
-
       {/* Mobile Navigation Menu */}
-      <div className="lg:hidden sticky top-0 z-50 backdrop-blur-lg bg-white bg-opacity-90 shadow-md">
+      <div className="lg:hidden sticky top-0 z-50 backdrop-blur-lg bg-[#0000435] bg-opacity-90 shadow-md">
         <div className="flex justify-between items-center px-4 py-3 relative">
           {/* Menu Toggle Button */}
           <button
@@ -281,11 +278,18 @@ const Header = () => {
 
           {/* Logo at the center */}
           <Link to="/" className="absolute left-1/2 transform -translate-x-1/2">
-            <img src="/logo.png" alt="Logo" className="w-12 h-12" />
+            <img
+              src="https://res.cloudinary.com/drls2cpnu/image/upload/v1742378937/haoimg_tttjcs.png"
+              alt="Logo"
+              className="w-28 h-10 border-2"
+            />
           </Link>
 
           {/* Cart Icon */}
-          <div className="relative cursor-pointer" onClick={() => setOpenCart(true)}>
+          <div
+            className="relative cursor-pointer"
+            onClick={() => setOpenCart(true)}
+          >
             <AiOutlineShoppingCart size={30} color="black" />
             <span className="absolute right-0 top-0 rounded-full bg-[#3bc177] w-4 h-4 text-white font-mono text-[12px] leading-tight text-center">
               {cart && cart.length}
@@ -295,8 +299,9 @@ const Header = () => {
 
         {/* Sidebar Menu */}
         <div
-          className={`fixed top-0 left-0 h-screen w-3/4 bg-white shadow-lg transform transition-transform duration-300 ease-in-out ${menuOpen ? "translate-x-0" : "-translate-x-full"
-            }`}
+          className={`fixed top-0 left-0 h-screen w-3/4 bg-white shadow-lg transform transition-transform duration-300 ease-in-out ${
+            menuOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
         >
           {/* Close Button inside Sidebar */}
           <div className="flex justify-end p-4">
@@ -319,36 +324,37 @@ const Header = () => {
 
             {/* Rent Dropdown */}
             <div className="relative">
-                <button
-                  onClick={() => setRentDropdownOpen(!rentDropdownOpen)}
-                  className={`${activeLink === "Rent"
+              <button
+                onClick={() => setRentDropdownOpen(!rentDropdownOpen)}
+                className={`${
+                  activeLink === "Rent"
                     ? "border-b-2 border-blue-950 flex items-center gap-1 font-bold text-base"
                     : "text-blue-950"
-                    } transition hover:border-b-2 hover:border-blue-950 hover:font-bold hover:text-base flex items-center gap-1`}
-                >
-                  Rent <IoIosArrowDown />
-                </button>
-                {rentDropdownOpen && (
-                  <div className="absolute mt-2 w-48 bg-white text-blue-950 shadow-lg rounded-lg">
-                    <ul className="py-2">
-                      {[
-                        "Warehouses",
-                        "Units",
-                        "Event Spaces",
-                        "Office Spaces",
-                      ].map((category, idx) => (
-                        <li
-                          key={idx}
-                          onClick={() => handleRentSelection("/rent", category)}
-                          className="px-4 py-2 hover:bg-blue-50 cursor-pointer"
-                        >
-                          Rent {category}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
+                } transition hover:border-b-2 hover:border-blue-950 hover:font-bold hover:text-base flex items-center gap-1`}
+              >
+                Rent <IoIosArrowDown />
+              </button>
+              {rentDropdownOpen && (
+                <div className="absolute mt-2 w-48 bg-white text-blue-950 shadow-lg rounded-lg">
+                  <ul className="py-2">
+                    {[
+                      "Warehouses",
+                      "Units",
+                      "Event Spaces",
+                      "Office Spaces",
+                    ].map((category, idx) => (
+                      <li
+                        key={idx}
+                        onClick={() => handleRentSelection("/rent", category)}
+                        className="px-4 py-2 hover:bg-blue-50 cursor-pointer"
+                      >
+                        Rent {category}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
 
             <Link
               to="/events"
@@ -402,15 +408,10 @@ const Header = () => {
           </ul>
         </div>
 
-        <div>
-
-        </div>
+        <div></div>
       </div>
-
     </>
   );
 };
-
-
 
 export default Header;

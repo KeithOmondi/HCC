@@ -17,14 +17,28 @@ const adminReducer = (state = initialState, action) => {
       return { ...state, loading: true, error: null };
 
     case ADMIN_LOGIN_SUCCESS:
-      return { ...state, adminToken: action.payload.token, loading: false, error: null };
+      return { 
+        ...state, 
+        adminToken: action.payload.token, 
+        loading: false, 
+        error: null 
+      };
 
     case ADMIN_LOGIN_FAILURE:
-      return { ...state, error: action.payload, loading: false };
+      return { 
+        ...state, 
+        error: action.payload || "Login failed", 
+        loading: false 
+      };
 
     case ADMIN_LOGOUT:
       localStorage.removeItem("adminToken");
-      return { ...state, adminToken: null, loading: false, error: null }; // 🔹 Ensured error is reset
+      return { 
+        ...state, 
+        adminToken: null, 
+        loading: false, 
+        error: null 
+      };
 
     default:
       return state; // Return unchanged state if action type is unknown

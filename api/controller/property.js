@@ -9,7 +9,8 @@ const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const ErrorHandler = require("../utils/ErrorHandler");
 const propertyToken = require("../utils/propertyToken");
 const agentAuth = require("../middleware/agentAuth");
-const { isAdmin, isAuthenticated } = require("../middleware/auth");
+const { isAuthenticated } = require("../middleware/auth");
+const adminAuth = require("../middleware/adminAuth");
 
 // create property
 router.post(
@@ -167,8 +168,6 @@ router.get(
 // delete agent ---admin
 router.delete(
   "/delete-agent/:id",
-  isAuthenticated,
-  isAdmin("Admin"),
   catchAsyncErrors(async (req, res, next) => {
     try {
       const agent = await Property.findById(req.params.id);

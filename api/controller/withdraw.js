@@ -10,7 +10,6 @@ const router = express.Router();
 // create withdraw request --- only for agent
 router.post(
   "/create-withdraw-request",
-  isAgent,
   catchAsyncErrors(async (req, res, next) => {
     try {
       const { amount } = req.body;
@@ -54,8 +53,6 @@ router.post(
 // get all withdraw requests --- admin
 router.get(
   "/get-all-withdraw-request",
-  isAuthenticated,
-  isAdmin("Admin"),
   catchAsyncErrors(async (req, res, next) => {
     try {
       const withdraws = await Withdraw.find().sort({ createdAt: -1 });
@@ -73,8 +70,6 @@ router.get(
 // update withdraw request ---- admin
 router.put(
   "/update-withdraw-request/:id",
-  isAuthenticated,
-  isAdmin("Admin"),
   catchAsyncErrors(async (req, res, next) => {
     try {
       const { agentId } = req.body;

@@ -1,203 +1,77 @@
-import React, { useEffect, useState, useMemo } from "react";
-import { AiOutlinePlusCircle } from "react-icons/ai";
-import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-import { createListing, clearErrors } from "../../redux/action/listing";
-import { listingsData } from "../../static/data"; 
+import { useState } from "react";
+import { useSelector } from "react-redux";
+import { FaWarehouse, FaBuilding, FaChair, FaBriefcase } from "react-icons/fa";
 import Header from "../Layout/Header";
 import Footer from "../Layout/Footer";
 
-const CreateListing = () => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+const RentingPage = () => {
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const { listings = [] } = useSelector((state) => state.listing || {});  
 
-  const { agent } = useSelector((state) => state.agent);
-  const { error, success } = useSelector((state) => state.listings) || {};
+  const filteredListings =
+    selectedCategory === "All"
+      ? listings
+      : listings.filter((item) => item.category === selectedCategory);
 
-  const [images, setImages] = useState([]);
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("");
-  const [tags, setTags] = useState("");
-  const [originalPrice, setOriginalPrice] = useState(0);
-  const [discountPrice, setDiscountPrice] = useState(0);
-  const [stock, setStock] = useState(1);
-
-  // Extract unique categories
-  const categories = useMemo(() => {
-    return [...new Set(listingsData?.map((item) => item.category))];
-  }, [listingsData]);
-
-  // Handle API responses
-  useEffect(() => {
-    if (error) {
-      toast.error(error);
-      dispatch(clearErrors());
-    }
-    if (success) {
-      toast.success("Listing created successfully!");
-      navigate("/");
-    }
-  }, [dispatch, error, success, navigate]);
-
-  // Handle Image Upload
-  const handleImageChange = (e) => {
-    const files = Array.from(e.target.files);
-    e.target.value = ""; // Reset input
-    setImages((prevImages) => [...prevImages, ...files]);
-  };
-
-  // Remove an image
-  const handleRemoveImage = (index) => {
-    setImages((prevImages) => prevImages.filter((_, i) => i !== index));
-  };
-
-  // Handle Form Submission
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    const formData = new FormData();
-    images.forEach((image, index) => formData.append(`images[${index}]`, image));
-    formData.append("name", name);
-    formData.append("description", description);
-    formData.append("category", category);
-    formData.append("tags", tags);
-    formData.append("originalPrice", originalPrice);
-    formData.append("discountPrice", discountPrice);
-    formData.append("stock", stock);
-    formData.append("propertyId", agent?._id || "");
-
-    dispatch(createListing(formData));
-  };
+  const categories = [
+    { name: "All", icon: null },
+    { name: "Warehouses", icon: <FaWarehouse /> },
+    { name: "Units", icon: <FaBuilding /> },
+    { name: "Event Spaces", icon: <FaChair /> },
+    { name: "Office Spaces", icon: <FaBriefcase /> },
+  ];
 
   return (
-    <div className="w-full sm:w-[90%] md:w-[70%] lg:w-[50%] bg-white shadow-lg rounded-lg p-4 md:p-6 mx-auto mt-6 max-h-screen overflow-auto">
-      <h5 className="text-2xl font-semibold text-center mb-4">Create Listing</h5>
-      <form onSubmit={handleSubmit}>
-        {/* Name Field */}
-        <div className="mb-4">
-          <label className="block text-gray-700">
-            Name <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            value={name}
-            className="w-full px-3 py-2 border rounded-md focus:ring focus:ring-blue-300"
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Enter listing name..."
-            required
-          />
+    <>
+      <Header />
+
+      <div className="p-4 sm:p-6 bg-gray-100 min-h-screen">
+        <h2 className="text-xl sm:text-2xl font-bold text-center mb-4 sm:mb-6">Available Rentals</h2>
+
+        {/* Category Selection - Scrollable on Small Screens */}
+        <div className="flex overflow-x-auto space-x-3 sm:justify-center mb-4 sm:mb-6 scrollbar-hide">
+          {categories.map((category) => (
+            <button
+              key={category.name}
+              onClick={() => setSelectedCategory(category.name)}
+              className={`px-3 py-1 sm:px-4 sm:py-2 rounded-lg transition duration-300 flex items-center space-x-2
+                ${
+                  selectedCategory === category.name
+                    ? "bg-blue-600 text-white"
+                    : "bg-white text-gray-700 border border-gray-300"
+                }`}
+            >
+              {category.icon} <span className="text-sm sm:text-base">{category.name}</span>
+            </button>
+          ))}
         </div>
 
-        {/* Description */}
-        <div className="mb-4">
-          <label className="block text-gray-700">
-            Description <span className="text-red-500">*</span>
-          </label>
-          <textarea
-            value={description}
-            className="w-full px-3 py-2 border rounded-md focus:ring focus:ring-blue-300"
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Enter listing description..."
-            rows="4"
-            required
-          />
-        </div>
-
-        {/* Category Selection */}
-        <div>
-          <label className="pb-2">
-            Category <span className="text-red-500">*</span>
-          </label>
-          <select
-            className="w-full mt-2 border h-[35px] rounded-[5px]"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            required
-          >
-            <option value="">Choose a category</option>
-            {categories.length > 0 ? (
-              categories.map((cat, index) => (
-                <option key={index} value={cat}>{cat}</option>
-              ))
-            ) : (
-              <option disabled>No categories available</option>
-            )}
-          </select>
-        </div>
-
-        {/* Price Fields */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-          <div>
-            <label className="block text-gray-700">Original Price</label>
-            <input
-              type="number"
-              value={originalPrice}
-              className="w-full px-3 py-2 border rounded-md focus:ring focus:ring-blue-300"
-              onChange={(e) => setOriginalPrice(Number(e.target.value))}
-              placeholder="Enter price..."
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700">Discount Price</label>
-            <input
-              type="number"
-              value={discountPrice}
-              className="w-full px-3 py-2 border rounded-md focus:ring focus:ring-blue-300"
-              onChange={(e) => setDiscountPrice(Number(e.target.value))}
-              placeholder="Enter discount price..."
-            />
-          </div>
-        </div>
-
-        {/* Upload Images */}
-        <div className="mb-4">
-          <label className="block text-gray-700">
-            Upload Images <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="file"
-            id="upload"
-            className="hidden"
-            multiple
-            onChange={handleImageChange}
-          />
-          <div className="flex flex-wrap mt-2">
-            <label htmlFor="upload" className="cursor-pointer">
-              <AiOutlinePlusCircle size={30} className="text-gray-500" />
-            </label>
-            {images.map((img, index) => (
-              <div key={index} className="relative">
+        {/* Listings Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          {filteredListings.length > 0 ? (
+            filteredListings.map((listing) => (
+              <div key={listing._id} className="bg-white shadow-md rounded-lg p-3 sm:p-4">
                 <img
-                  src={URL.createObjectURL(img)}
-                  alt="Preview"
-                  className="h-24 w-24 object-cover m-2 rounded-md shadow-md"
+                  src={listing.image}
+                  alt={listing.name}
+                  className="w-full h-40 sm:h-48 object-cover rounded-md mb-2 sm:mb-4"
                 />
-                <button
-                  type="button"
-                  className="absolute top-0 right-0 bg-red-500 text-white text-xs px-2 py-1 rounded-full"
-                  onClick={() => handleRemoveImage(index)}
-                >
-                  X
-                </button>
+                <h3 className="text-sm sm:text-lg font-semibold">{listing.name}</h3>
+                <p className="text-gray-600 text-xs sm:text-sm">Category: {listing.category}</p>
+                <p className="text-gray-800 font-bold text-sm sm:text-base">Price: {listing.price}</p>
               </div>
-            ))}
-          </div>
+            ))
+          ) : (
+            <p className="text-center text-gray-600 col-span-full">
+              No listings available in this category.
+            </p>
+          )}
         </div>
+      </div>
 
-        {/* Submit Button */}
-        <div className="mb-4">
-          <button
-            type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition-all duration-300"
-          >
-            Create Listing
-          </button>
-        </div>
-      </form>
-    </div>
+      <Footer />
+    </>
   );
 };
 
-export default CreateListing;
+export default RentingPage;

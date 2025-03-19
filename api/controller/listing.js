@@ -86,7 +86,6 @@ router.get(
 // delete listing of a property
 router.delete(
   "/delete-property-listing/:id",
-  isAgent,
   catchAsyncErrors(async (req, res, next) => {
     try {
       const property = await Property.findById(req.params.id);
@@ -134,7 +133,6 @@ router.get(
 // review for a listing
 router.put(
   "/create-new-review",
-  isAuthenticated,
   catchAsyncErrors(async (req, res, next) => {
     try {
       const { user, rating, comment, listingId, transactionId } = req.body;
@@ -193,8 +191,6 @@ router.put(
 // all listings --- for admin
 router.get(
   "/admin-all-listings",
-  isAuthenticated,
-  isAdmin("Admin"),
   catchAsyncErrors(async (req, res, next) => {
     try {
       const listings = await Listing.find().sort({

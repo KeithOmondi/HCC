@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { adminLogin } from "../../redux/action/admin";
@@ -16,15 +16,17 @@ const AdminLogin = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(adminLogin(email, password, navigate));
+    if (!loading) {
+      dispatch(adminLogin(email, password, navigate)); // ✅ Prevent multiple clicks
+    }
   };
 
-  // Show toast message on error
-  React.useEffect(() => {
+  // ✅ Show error toast when login fails
+  useEffect(() => {
     if (error) {
-      toast.error(error); // ✅ Show error as toast
+      toast.error(error);
     }
-  }, [error]);
+  }, [error, dispatch]); // ✅ Added dispatch for safety
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -61,6 +63,7 @@ const AdminLogin = () => {
               className="absolute right-3 top-2 text-gray-500"
               onClick={() => setVisible(!visible)}
               aria-label="Toggle password visibility"
+              tabIndex="0" // ✅ Makes button keyboard-accessible
             >
               {visible ? <AiOutlineEye size={20} /> : <AiOutlineEyeInvisible size={20} />}
             </button>

@@ -92,7 +92,6 @@ router.get(
 // update transaction status for agent
 router.put(
   "/update-transaction-status/:id",
-  isAgent,
   catchAsyncErrors(async (req, res, next) => {
     try {
       const transaction = await Transaction.findById(req.params.id);
@@ -173,7 +172,6 @@ router.put(
 // accept the refund ---- agent
 router.put(
   "/transaction-refund-success/:id",
-  isAgent,
   catchAsyncErrors(async (req, res, next) => {
     try {
       const transaction = await Transaction.findById(req.params.id);
@@ -214,8 +212,6 @@ router.put(
 // all transactions --- for admin
 router.get(
   "/admin-all-transactions",
-  isAuthenticated,
-  isAdmin("Admin"),
   catchAsyncErrors(async (req, res, next) => {
     try {
       const transactions = await Transaction.find().sort({

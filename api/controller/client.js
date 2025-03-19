@@ -8,7 +8,7 @@ const ErrorHandler = require("../utils/ErrorHandler");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const sendMail = require("../utils/sendMail");
 const sendToken = require("../utils/jwtToken");
-const { isAuthenticated, isAdmin } = require("../middleware/auth");
+const adminAuth = require("../middleware/adminAuth");
 
 const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
 const ACTIVATION_SECRET = process.env.ACTIVATION_SECRET;
