@@ -1,134 +1,203 @@
-import { useState, useEffect } from "react";
-// eslint-disable-next-line no-unused-vars
-import { motion } from "framer-motion";
-import {
-  FaHome,
-  FaWarehouse,
-  FaBuilding,
-  FaShoppingCart,
-} from "react-icons/fa";
-import { useLocation } from "react-router-dom";
+import React, { useEffect, useState, useMemo } from "react";
+import { AiOutlinePlusCircle } from "react-icons/ai";
 import { useDispatch, useSelector } from "react-redux";
-import { addToCart } from "../../redux/action/cart";
-import "react-toastify/dist/ReactToastify.css";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { createListing, clearErrors } from "../../redux/action/listing";
+import { listingsData } from "../../static/data"; 
 import Header from "../Layout/Header";
 import Footer from "../Layout/Footer";
-import styles from "../../styles/styles";
-import { ListingsData } from "../../static/data";
-import { toast, ToastContainer } from "react-toastify";
 
-const categories = [
-  { name: "All", icon: null },
-  { name: "Warehouses", icon: FaWarehouse },
-  { name: "Units", icon: FaHome },
-  { name: "Event Spaces", icon: FaBuilding },
-  { name: "Office Spaces", icon: FaBuilding },
-];
-
-
-const RentingPage = () => {
-  const location = useLocation();
+const CreateListing = () => {
   const dispatch = useDispatch();
-  const queryParams = new URLSearchParams(location.search);
-  const initialCategory = queryParams.get("category") || "All";
+  const navigate = useNavigate();
 
-  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
-  const [filteredListings, setFilteredListings] = useState(ListingsData);
-  const { cart } = useSelector((state) => state.cart);
+  const { agent } = useSelector((state) => state.agent);
+  const { error, success } = useSelector((state) => state.listings) || {};
 
+  const [images, setImages] = useState([]);
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState("");
+  const [tags, setTags] = useState("");
+  const [originalPrice, setOriginalPrice] = useState(0);
+  const [discountPrice, setDiscountPrice] = useState(0);
+  const [stock, setStock] = useState(1);
+
+  // Extract unique categories
+  const categories = useMemo(() => {
+    return [...new Set(listingsData?.map((item) => item.category))];
+  }, [listingsData]);
+
+  // Handle API responses
   useEffect(() => {
-    const filtered =
-      selectedCategory === "All"
-        ? ListingsData
-        : ListingsData.filter((item) => item.category === selectedCategory);
-    setFilteredListings(filtered);
-  }, [selectedCategory]);
+    if (error) {
+      toast.error(error);
+      dispatch(clearErrors());
+    }
+    if (success) {
+      toast.success("Listing created successfully!");
+      navigate("/");
+    }
+  }, [dispatch, error, success, navigate]);
 
-  const handleRentClick = (listing) => {
-    toast.success(`You selected: ${listing.name}`);
+  // Handle Image Upload
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    e.target.value = ""; // Reset input
+    setImages((prevImages) => [...prevImages, ...files]);
   };
 
-  const addToCartHandler = (listing) => {
-    const isItemExists = cart?.some((item) => item._id === listing._id);
-    if (isItemExists) {
-      toast.error("Item already in cart!");
-    } else {
-      dispatch(addToCart({ ...listing, qty: 1 }));
-      toast.success("Item added to cart successfully!");
-    }
+  // Remove an image
+  const handleRemoveImage = (index) => {
+    setImages((prevImages) => prevImages.filter((_, i) => i !== index));
+  };
+
+  // Handle Form Submission
+  const handleSubmit = (e) => {
+    e.preventDefault();
+
+    const formData = new FormData();
+    images.forEach((image, index) => formData.append(`images[${index}]`, image));
+    formData.append("name", name);
+    formData.append("description", description);
+    formData.append("category", category);
+    formData.append("tags", tags);
+    formData.append("originalPrice", originalPrice);
+    formData.append("discountPrice", discountPrice);
+    formData.append("stock", stock);
+    formData.append("propertyId", agent?._id || "");
+
+    dispatch(createListing(formData));
   };
 
   return (
-    <div>
-      <Header />
-      <ToastContainer />
-      <div className={`${styles.section} justify-center center`}>
-        <div className={`${styles.heading}`}>
-          <h1>Rent Your Ideal Space</h1>
+    <div className="w-full sm:w-[90%] md:w-[70%] lg:w-[50%] bg-white shadow-lg rounded-lg p-4 md:p-6 mx-auto mt-6 max-h-screen overflow-auto">
+      <h5 className="text-2xl font-semibold text-center mb-4">Create Listing</h5>
+      <form onSubmit={handleSubmit}>
+        {/* Name Field */}
+        <div className="mb-4">
+          <label className="block text-gray-700">
+            Name <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            value={name}
+            className="w-full px-3 py-2 border rounded-md focus:ring focus:ring-blue-300"
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Enter listing name..."
+            required
+          />
         </div>
 
-        {/* Category Filter */}
-        <div className="bg-white shadow-md p-4 rounded-lg flex flex-wrap justify-center gap-2 md:gap-4 mb-6">
-          {categories.map(({ name, icon: Icon }) => (
-            <button
-              key={name}
-              onClick={() => setSelectedCategory(name)}
-              className={`px-3 py-2 text-sm md:text-base rounded flex items-center gap-2 ${selectedCategory === name
-                ? "bg-blue-950 text-white"
-                : "bg-gray-200"
-                }`}
-            >
-              {Icon && <Icon />} {name}
-            </button>
-          ))}
+        {/* Description */}
+        <div className="mb-4">
+          <label className="block text-gray-700">
+            Description <span className="text-red-500">*</span>
+          </label>
+          <textarea
+            value={description}
+            className="w-full px-3 py-2 border rounded-md focus:ring focus:ring-blue-300"
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Enter listing description..."
+            rows="4"
+            required
+          />
         </div>
 
-        {/* Listings */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 cursor-pointer">
-          {filteredListings && filteredListings.length !== 0 && (
-            <>
-              {filteredListings.map((listing) => (
-                <motion.div
-                  key={listing._id}
-                  className="bg-white shadow-lg rounded-lg overflow-hidden"
-                  whileHover={{ scale: 1.03 }}
+        {/* Category Selection */}
+        <div>
+          <label className="pb-2">
+            Category <span className="text-red-500">*</span>
+          </label>
+          <select
+            className="w-full mt-2 border h-[35px] rounded-[5px]"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            required
+          >
+            <option value="">Choose a category</option>
+            {categories.length > 0 ? (
+              categories.map((cat, index) => (
+                <option key={index} value={cat}>{cat}</option>
+              ))
+            ) : (
+              <option disabled>No categories available</option>
+            )}
+          </select>
+        </div>
+
+        {/* Price Fields */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label className="block text-gray-700">Original Price</label>
+            <input
+              type="number"
+              value={originalPrice}
+              className="w-full px-3 py-2 border rounded-md focus:ring focus:ring-blue-300"
+              onChange={(e) => setOriginalPrice(Number(e.target.value))}
+              placeholder="Enter price..."
+            />
+          </div>
+          <div>
+            <label className="block text-gray-700">Discount Price</label>
+            <input
+              type="number"
+              value={discountPrice}
+              className="w-full px-3 py-2 border rounded-md focus:ring focus:ring-blue-300"
+              onChange={(e) => setDiscountPrice(Number(e.target.value))}
+              placeholder="Enter discount price..."
+            />
+          </div>
+        </div>
+
+        {/* Upload Images */}
+        <div className="mb-4">
+          <label className="block text-gray-700">
+            Upload Images <span className="text-red-500">*</span>
+          </label>
+          <input
+            type="file"
+            id="upload"
+            className="hidden"
+            multiple
+            onChange={handleImageChange}
+          />
+          <div className="flex flex-wrap mt-2">
+            <label htmlFor="upload" className="cursor-pointer">
+              <AiOutlinePlusCircle size={30} className="text-gray-500" />
+            </label>
+            {images.map((img, index) => (
+              <div key={index} className="relative">
+                <img
+                  src={URL.createObjectURL(img)}
+                  alt="Preview"
+                  className="h-24 w-24 object-cover m-2 rounded-md shadow-md"
+                />
+                <button
+                  type="button"
+                  className="absolute top-0 right-0 bg-red-500 text-white text-xs px-2 py-1 rounded-full"
+                  onClick={() => handleRemoveImage(index)}
                 >
-                  <img
-                    src={listing.image}
-                    alt={listing.name}
-                    className="w-full h-40 sm:h-48 object-cover"
-                  />
-                  <div className="p-4">
-                    <h2 className="text-lg sm:text-xl font-bold">
-                      {listing.name}
-                    </h2>
-                    <p className="text-md sm:text-lg text-blue-700 font-semibold">
-                      {listing.price}
-                    </p>
-
-                    <button
-                      className="mt-4 w-full cursor-pointer bg-blue-950 text-white flex items-center justify-center py-2 rounded hover:bg-blue-700"
-                      onClick={() => handleRentClick(listing)}
-                    >
-                      <FaShoppingCart className="mr-2" /> Rent Now
-                    </button>
-
-                    <button
-                      className="mt-2 w-full cursor-pointer bg-green-600 text-white flex items-center justify-center py-2 rounded hover:bg-green-500"
-                      onClick={() => addToCartHandler(listing)}
-                    >
-                      <FaShoppingCart className="mr-2" /> Add to Cart
-                    </button>
-                  </div>
-                </motion.div>
-              ))}
-            </>
-          )}
+                  X
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
-      <Footer />
+
+        {/* Submit Button */}
+        <div className="mb-4">
+          <button
+            type="submit"
+            className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition-all duration-300"
+          >
+            Create Listing
+          </button>
+        </div>
+      </form>
     </div>
   );
 };
 
-export default RentingPage;
+export default CreateListing;

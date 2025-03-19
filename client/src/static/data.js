@@ -1,5 +1,5 @@
 // categories data
-export const ListingsData = [
+export const listingsData = [
   {
     _id: 1,
     category: "Warehouses",

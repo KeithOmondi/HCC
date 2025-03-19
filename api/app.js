@@ -37,11 +37,17 @@ const payment = require("./controller/payment");
 app.use("/api/v2/client", client);
 app.use("/api/v2/transaction", transaction);
 app.use("/api/v2/property", property);
-app.use("/api/v2/lisiting", listing);
+app.use("/api/v2/listing", listing);
 app.use("/api/v2/event", event);
 app.use("/api/v2/payment", payment);
 app.use("/api/v2/withdraw", withdraw);
 app.use("/api/v2/admin", admin)
+
+
+// ✅ Default Route
+app.get("/", (req, res) => {
+  res.send("Hello World! Backend is running.");
+});
 
 // it's for ErrorHandling
 app.use(ErrorHandler);

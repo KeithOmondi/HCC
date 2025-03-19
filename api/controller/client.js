@@ -8,7 +8,7 @@ const ErrorHandler = require("../utils/ErrorHandler");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const sendMail = require("../utils/sendMail");
 const sendToken = require("../utils/jwtToken");
-const { isAuthenticated } = require("../middleware/auth");
+const { isAuthenticated, isAdmin } = require("../middleware/auth");
 
 const CLIENT_URL = process.env.CLIENT_URL || "http://localhost:5173";
 const ACTIVATION_SECRET = process.env.ACTIVATION_SECRET;
@@ -146,7 +146,6 @@ router.post(
 // Load Client (Authenticated)
 router.get(
   "/getclient",
-  isAuthenticated,
   catchAsyncErrors(async (req, res, next) => {
     const client = await Client.findById(req.user.id);
 
@@ -161,7 +160,6 @@ router.get(
 // Admin - Get All Clients
 router.get(
   "/admin-all-clients",
-  isAuthenticated,
   catchAsyncErrors(async (req, res, next) => {
     const clients = await Client.find();
     res.status(200).json({ success: true, clients });
@@ -205,6 +203,35 @@ router.post(
       console.error("Error sending reset email:", mailError);
       return next(new ErrorHandler("Failed to send reset email", 500));
     }
+  })
+);
+
+
+// Delete Client
+router.get(
+  "/delete-client/:id",
+  catchAsyncErrors(async (req, res, next) => {
+    const client = await Client.findById(req.params.id);
+
+    if (!client) {
+      return next(new ErrorHandler("Client not found", 404));
+    }
+
+    // Delete avatar from Cloudinary if exists
+    if (client.avatar && client.avatar.public_id) {
+      try {
+        await cloudinary.uploader.destroy(client.avatar.public_id);
+      } catch (cloudError) {
+        console.error("Error deleting avatar from Cloudinary:", cloudError);
+      }
+    }
+
+    await Client.findByIdAndDelete(req.params.id);
+
+    res.status(200).json({
+      success: true,
+      message: "Client deleted successfully!",
+    });
   })
 );
 

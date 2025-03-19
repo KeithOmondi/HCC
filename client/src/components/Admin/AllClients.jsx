@@ -7,7 +7,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { server } from "../../server";
 import { Button } from "@mui/material";
-import { getAllClients } from "../../redux/action/client"
+import { getAllClients } from "../../redux/action/client";
 
 const AllClients = () => {
   const dispatch = useDispatch();
@@ -15,7 +15,6 @@ const AllClients = () => {
   const [open, setOpen] = useState(false);
   const [clientId, setClientId] = useState("");
   const [clients, setClients] = useState([]);
-
 
   useEffect(() => {
     const fetchClients = async () => {
@@ -28,9 +27,7 @@ const AllClients = () => {
       }
     };
     fetchClients();
-  }, [dispatch]);
-  
-  
+  }, [dispatch]);
 
   const handleDelete = async (id) => {
     try {

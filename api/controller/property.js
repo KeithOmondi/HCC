@@ -14,8 +14,6 @@ const { isAdmin, isAuthenticated } = require("../middleware/auth");
 // create property
 router.post(
   "/create-property",
-  isAuthenticated,
-  isAdmin("Admin"),
   catchAsyncErrors(async (req, res, next) => {
     try {
       const { email } = req.body;

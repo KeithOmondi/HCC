@@ -97,7 +97,7 @@ export const deleteClientAddress = (id) => async (dispatch) => {
     DELETE_CLIENT_ADDRESS_REQUEST,
     DELETE_CLIENT_ADDRESS_SUCCESS,
     DELETE_CLIENT_ADDRESS_FAIL,
-    () => axios.delete(`${server}/client/delete-client-address/${id}`, { withCredentials: true })
+    () => axios.delete(`${server}/client/delete-client${id}`, { withCredentials: true })
   );
 };
 

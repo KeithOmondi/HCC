@@ -23,7 +23,7 @@ const AgentLogin = () => {
 
     try {
       const { data } = await axios.post(
-        `${server}/property/login-propertyy`,
+        `${server}/property/login-property`,
         formData,
         { headers: { "Content-Type": "application/json" } }
       );

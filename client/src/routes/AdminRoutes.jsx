@@ -6,6 +6,8 @@ import AdminDashboardListings from "../pages/AdminDashboardListings";
 import AdminDashboardEvents from "../pages/AdminDashboardEvents";
 import ResetPasswordPage from "../pages/ResetPasswordPage";
 import AdminLoginPage from "../pages/AdminLoginPage";
+import AdminProfilePage from "../pages/AdminProfilePage"
+import Verify from "../pages/Verify"
 
 export {
     AdminDashboardPage,
@@ -15,5 +17,7 @@ export {
     AdminDashboardListings,
     AdminDashboardEvents,
     ResetPasswordPage,
-    AdminLoginPage
+    AdminLoginPage,
+    AdminProfilePage,
+    Verify
 }

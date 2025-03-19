@@ -16,6 +16,8 @@ import {
   AdminDashboardEvents,
   ResetPasswordPage,
   AdminLoginPage,
+  AdminProfilePage,
+  Verify
 } from "./routes/AdminRoutes.jsx";
 import {
   AgentSignupPage,
@@ -69,9 +71,12 @@ function App() {
         <Route path="*" element={<NotFound />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/verify/:token" element={<Verify />} />
 
         {/* ✅ Protect all Admin Routes */}
         
+          <Route element={ <AdminProtectedRoute /> }>
+
           <Route path="/admin-dashboard" element={<AdminDashboardPage />} />
           <Route path="/admin-client" element={<AdminDashboardClients />} />
           <Route path="/admin-agent" element={<AdminDashboardAgents />} />
@@ -79,6 +84,10 @@ function App() {
           <Route path="/admin-reset-password" element={<ResetPasswordPage />} />
           <Route path="/admin-listing" element={<AdminDashboardListings />} />
           <Route path="/admin-event" element={<AdminDashboardEvents />} />
+          <Route path="/admin-dashboard/profile" element={ <AdminProfilePage /> } />
+
+          </Route>
+
        
 
 

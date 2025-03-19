@@ -33,7 +33,7 @@ const clientSchema = new mongoose.Schema({
   ],
   role: {
     type: String,
-    default: "client",
+    default: ["client", "admin"],
   },
   avatar: {
     public_id: String,

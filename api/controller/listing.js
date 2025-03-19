@@ -1,5 +1,5 @@
 const express = require("express");
-const { isSeller, isAuthenticated, isAdmin, isAgent } = require("../middleware/auth");
+const { isAuthenticated, isAdmin, isAgent } = require("../middleware/auth");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
 const router = express.Router();
 const Listing = require("../model/listing");
@@ -13,48 +13,58 @@ router.post(
   "/create-listing",
   catchAsyncErrors(async (req, res, next) => {
     try {
-      const propertyId = req.body.propertyId;
+      const { propertyId, images } = req.body;
+
+      // Validate propertyId format
+      if (!propertyId || !/^[0-9a-fA-F]{24}$/.test(propertyId)) {
+        return next(new ErrorHandler("Invalid Property ID format!", 400));
+      }
+
+      // Verify if the property exists
       const property = await Property.findById(propertyId);
       if (!property) {
-        return next(new ErrorHandler("Property Id is invalid!", 400));
-      } else {
-        let images = [];
-
-        if (typeof req.body.images === "string") {
-          images.push(req.body.images);
-        } else {
-          images = req.body.images;
-        }
-      
-        const imagesLinks = [];
-      
-        for (let i = 0; i < images.length; i++) {
-          const result = await cloudinary.v2.uploader.upload(images[i], {
-            folder: "listings",
-          });
-      
-          imagesLinks.push({
-            public_id: result.public_id,
-            url: result.secure_url,
-          });
-        }
-      
-        const listingData = req.body;
-        listingData.images = imagesLinks;
-        listingData.property = property;
-
-        const listing = await Listing.create(listingData);
-
-        res.status(201).json({
-          success: true,
-          listing,
-        });
+        return next(new ErrorHandler("Property not found!", 404));
       }
+
+      // Ensure images is an array (handles single image cases too)
+      const imagesArray = Array.isArray(images) ? images : [images];
+
+      // Upload images to Cloudinary
+      const imagesLinks = await Promise.all(
+        imagesArray.map(async (image) => {
+          try {
+            const result = await cloudinary.v2.uploader.upload(image, {
+              folder: "listings",
+            });
+            return { public_id: result.public_id, url: result.secure_url };
+          } catch (uploadError) {
+            console.error("❌ Image upload error:", uploadError);
+            throw new ErrorHandler("Image upload failed!", 500);
+          }
+        })
+      );
+
+      // Prepare listing data
+      const listingData = {
+        ...req.body,
+        images: imagesLinks,
+      };
+
+      // Create the listing
+      const listing = await Listing.create(listingData);
+
+      res.status(201).json({
+        success: true,
+        listing,
+      });
     } catch (error) {
-      return next(new ErrorHandler(error, 400));
+      console.error("❌ Error creating listing:", error);
+      return next(new ErrorHandler(error.message, 500));
     }
   })
 );
+
+
 
 // get all listings of a property
 router.get(
@@ -75,33 +85,34 @@ router.get(
 
 // delete listing of a property
 router.delete(
-    "/delete-property-listing/:id",
-    isAgent,
-    catchAsyncErrors(async (req, res, next) => {
-      try {
-        const property = await Property.findById(req.params.id);
-  
-        if (!property) {
-          return next(new ErrorHandler("Property listing not found with this ID", 404));
-        }
-  
-        // Remove images from Cloudinary
-        for (let i = 0; i < property.images.length; i++) {
-          await cloudinary.v2.uploader.destroy(property.images[i].public_id);
-        }
-  
-        await property.deleteOne(); // Use deleteOne() instead of remove()
-  
-        res.status(200).json({
-          success: true,
-          message: "Property listing deleted successfully!",
-        });
-      } catch (error) {
-        return next(new ErrorHandler(error.message, 400));
+  "/delete-property-listing/:id",
+  isAgent,
+  catchAsyncErrors(async (req, res, next) => {
+    try {
+      const property = await Property.findById(req.params.id);
+
+      if (!property) {
+        return next(
+          new ErrorHandler("Property listing not found with this ID", 404)
+        );
       }
-    })
-  );
-  
+
+      // Remove images from Cloudinary
+      for (let i = 0; i < property.images.length; i++) {
+        await cloudinary.v2.uploader.destroy(property.images[i].public_id);
+      }
+
+      await property.deleteOne(); // Use deleteOne() instead of remove()
+
+      res.status(200).json({
+        success: true,
+        message: "Property listing deleted successfully!",
+      });
+    } catch (error) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  })
+);
 
 // get all listings
 router.get(

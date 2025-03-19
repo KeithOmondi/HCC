@@ -1,7 +1,13 @@
-GET http://localhost:8000/api/v2/client/admin-all-clients
+POST http://localhost:8000/api/v2/listing/create-listing
 Content-Type: application/json
 
-# {
-#   "email": "denniskeith62@gmail.com",
-#   "password": "dennis"
-# }
+{
+  "category": "Warehouses",
+  "description": "Hall",
+  "discountPrice": "399983",
+  "name": "Hall",
+  "originalPrice": "3000",
+  "propertyId": "67d95ce946b3c78fb8e19012",
+  "stock": "1",
+  "tags": []
+}

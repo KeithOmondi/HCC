@@ -1,16 +1,16 @@
-import React from 'react'
-import { AiOutlineGift } from 'react-icons/ai'
-import { BiMessageSquareDetail } from 'react-icons/bi'
-import { FiPackage, FiShoppingBag } from 'react-icons/fi'
-import { MdOutlineLocalOffer } from 'react-icons/md'
-import { useSelector } from 'react-redux'
-import { Link } from 'react-router-dom'
+import React from "react";
+import { AiOutlineGift } from "react-icons/ai";
+import { BiMessageSquareDetail } from "react-icons/bi";
+import { FiPackage, FiShoppingBag } from "react-icons/fi";
+import { MdOutlineLocalOffer } from "react-icons/md";
+import { useSelector } from "react-redux";
+import { Link } from "react-router-dom";
 
 const AdminHeader = () => {
-    const {client} = useSelector((state) => state.client);
+  const { admin } = useSelector((state) => state.admin);
 
   return (
-         <div className="w-full h-[80px] bg-white shadow sticky top-0 left-0 z-30 flex items-center justify-between px-4">
+    <div className="w-full h-[80px] bg-white shadow sticky top-0 left-0 z-30 flex items-center justify-between px-4">
       <div>
         <Link to="/">
           <img
@@ -52,15 +52,17 @@ const AdminHeader = () => {
               className="mx-5 cursor-pointer"
             />
           </Link>
+          <Link to="/admin-dashboard/profile">
             <img
-              src={`${client?.avatar?.url}`}
-              alt=""
-              className="w-[50px] h-[50px] rounded-full object-cover"
+              src={`${admin?.avatar?.url}`}
+              alt="Admin Profile"
+              className="w-[50px] h-[50px] rounded-full object-cover cursor-pointer"
             />
+          </Link>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default AdminHeader
+export default AdminHeader;

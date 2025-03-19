@@ -29,11 +29,17 @@ const Header = () => {
 
   useEffect(() => {
     const storedClient = sessionStorage.getItem("client");
+    
     if (storedClient) {
-      const parsedClient = JSON.parse(storedClient);
-      setUsername(parsedClient.name || "");
+      try {
+        const parsedClient = JSON.parse(storedClient);
+        setUsername(parsedClient?.name || ""); // Optional chaining prevents errors
+      } catch (error) {
+        console.error("Error parsing client data:", error);
+      }
     }
   }, []);
+  
 
   const handleRentSelection = (path, category) => {
     navigate(`${path}?category=${encodeURIComponent(category)}`);

@@ -5,10 +5,10 @@ import storage from "redux-persist/lib/storage";
 import { clientReducer } from "./reducer/client";
 import { transactionReducer } from "./reducer/transaction";
 import { agentReducer } from "./reducer/agent";
-import { listingReducer } from "./reducer/listing";
 import { eventReducer } from "./reducer/event";
 import { cartReducer } from "./reducer/cart";
 import adminReducer from "./reducer/admin";
+import { listingReducer } from "./reducer/listing";
 
 // 🔹 Persist Config for Admin Only
 const adminPersistConfig = {
