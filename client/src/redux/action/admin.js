@@ -25,11 +25,13 @@ export const adminLogin = (email, password, navigate) => async (dispatch) => {
       email,
       password,
     });
-
+console.log(data);
     if (!data.token) throw new Error("Token not received!");
 
     // ✅ Store token
     localStorage.setItem("adminToken", data.token);
+    localStorage.setItem("adminId", data.admin.id);
+
 
     // ✅ Dispatch success action
     dispatch({ type: ADMIN_LOGIN_SUCCESS, payload: { token: data.token } });

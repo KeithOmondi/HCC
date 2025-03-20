@@ -30,12 +30,6 @@ export const createListing = (listingData) => async (dispatch) => {
   try {
     dispatch({ type: LISTING_CREATE_REQUEST });
 
-    console.log("🔍 Checking propertyId:", listingData.propertyId);
-
-    if (!listingData.propertyId || !listingData.propertyId.match(/^[0-9a-fA-F]{24}$/)) {
-      throw new Error("Missing or invalid propertyId: A valid ObjectId is required.");
-    }
-
     console.log("📤 Sending listingData:", listingData);
 
     const { data } = await axios.post(

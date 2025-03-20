@@ -13,49 +13,62 @@ router.post(
   "/create-listing",
   catchAsyncErrors(async (req, res, next) => {
     try {
-      const { propertyId, images } = req.body;
+      const { images, name, description, category, originalPrice, discountPrice, stock, tags, address, phoneNumber, email} = req.body;
 
-      // Validate propertyId format
-      if (!propertyId || !/^[0-9a-fA-F]{24}$/.test(propertyId)) {
-        return next(new ErrorHandler("Invalid Property ID format!", 400));
-      }
+      // Create Property
+      const newProperty = await Property.create({
+          name,
+          description,
+          category,
+          tags,
+          stock,
+          address,
+          phoneNumber,
+          email,
+      });
+      
 
-      // Verify if the property exists
-      const property = await Property.findById(propertyId);
-      if (!property) {
-        return next(new ErrorHandler("Property not found!", 404));
-      }
-
-      // Ensure images is an array (handles single image cases too)
+      // Step 2: Upload Images
       const imagesArray = Array.isArray(images) ? images : [images];
-
-      // Upload images to Cloudinary
       const imagesLinks = await Promise.all(
         imagesArray.map(async (image) => {
-          try {
-            const result = await cloudinary.v2.uploader.upload(image, {
+          let result;
+      
+          // Check if it's a local path (e.g., starts with C:\ or /Users)
+          if (image.path) {
+            result = await cloudinary.v2.uploader.upload(image.path, {
               folder: "listings",
             });
-            return { public_id: result.public_id, url: result.secure_url };
-          } catch (uploadError) {
-            console.error("❌ Image upload error:", uploadError);
-            throw new ErrorHandler("Image upload failed!", 500);
+          } else if (image.base64) {
+            const base64Data = image.base64.replace(/^data:image\/\w+;base64,/, '');
+            result = await cloudinary.v2.uploader.upload(`data:image/jpeg;base64,${base64Data}`, {
+              folder: "listings",
+            });
+          } else {
+            throw new Error("No valid image path or base64 data provided");
           }
+      
+          return { public_id: result.public_id, url: result.secure_url };
         })
       );
-
-      // Prepare listing data
-      const listingData = {
-        ...req.body,
+      
+      // Step 3: Create Listing & link propertyId
+      const listing = await Listing.create({
+        name,
+        description,
+        category,
+        originalPrice,
+        discountPrice,
+        stock,
+        tags,
         images: imagesLinks,
-      };
-
-      // Create the listing
-      const listing = await Listing.create(listingData);
+        propertyId: newProperty._id, // linked here!
+      });
 
       res.status(201).json({
         success: true,
         listing,
+        property: newProperty,
       });
     } catch (error) {
       console.error("❌ Error creating listing:", error);
@@ -63,6 +76,7 @@ router.post(
     }
   })
 );
+
 
 
 

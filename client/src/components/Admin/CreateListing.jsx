@@ -10,12 +10,8 @@ const CreateListing = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const agent  = localStorage.getItem("agentToken")
-    const admin  = localStorage.getItem("adminToken") // Assuming admin details are stored in Redux
   const { error, success } = useSelector((state) => state.listings) || {};
 
-  const [images, setImages] = useState([]);
-  const [previewImages, setPreviewImages] = useState([]); // Store preview URLs
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState("");
@@ -23,8 +19,14 @@ const CreateListing = () => {
   const [originalPrice, setOriginalPrice] = useState(0);
   const [discountPrice, setDiscountPrice] = useState(0);
   const [stock, setStock] = useState(1);
-  const [categories, setCategories] = useState([]); // Store fetched categories
+  const [address, setAddress] = useState("");
 
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [email, setEmail] = useState("");
+
+  const [images, setImages] = useState([]);
+  const [previewImages, setPreviewImages] = useState([]);
+  const [categories, setCategories] = useState([]);
   // Fetch categories from listingsData
   useEffect(() => {
     if (Array.isArray(listingsData) && listingsData.length > 0) {
@@ -67,36 +69,13 @@ const CreateListing = () => {
   // Handle Form Submission
   const handleSubmit = (e) => {
     e.preventDefault();
-  
+
     if (images.length === 0) {
       return toast.error("Please upload at least one image.");
     }
-  
-    // Log agent and admin before accessing _id
-    console.log("🕵️‍♂️ Checking agent and admin:", { agent, admin });
-  
-    if (!agent && !admin) {
-      console.error("❌ Neither agent nor admin is defined");
-      return toast.error("You must be logged in as an agent or admin.");
-    }
-  
-    const agentId = agent || null || undefined
-    const adminId = admin || null || undefined
-  
-    if (!agentId && !adminId) {
-      console.error("❌ Neither agentId nor adminId found");
-      return toast.error("Authorization error. Please log in again.");
-    }
-  
-    const propertyId = agentId || adminId;
-  
-    console.log("🧐 propertyId before validation:", propertyId);
-  
-    if (!propertyId) {
-      console.error("❌ Invalid Property ID:", propertyId);
-      return toast.error("Invalid Property ID. Please refresh and try again.");
-    }
-  
+
+
+
     const formData = new FormData();
     images.forEach((image) => formData.append("images", image));
     formData.append("name", name);
@@ -106,14 +85,13 @@ const CreateListing = () => {
     formData.append("originalPrice", originalPrice);
     formData.append("discountPrice", discountPrice);
     formData.append("stock", stock);
-    formData.append("propertyId", propertyId);
-  
-    console.log("📤 Submitting FormData:", Object.fromEntries([...formData]));
-  
+    formData.append("address", address);
+    formData.append("phoneNumber", phoneNumber);
+    formData.append("email", email)
+
     dispatch(createListing(formData));
   };
-  
-  
+
 
   return (
     <div className="w-full sm:w-[90%] md:w-[70%] lg:w-[50%] bg-white shadow-lg rounded-lg p-4 md:p-6 mx-auto mt-6 max-h-screen overflow-auto">
@@ -223,6 +201,42 @@ const CreateListing = () => {
             ))}
           </div>
         </div>
+        <div className="mb-4">
+          <label className="block text-gray-700">Address</label>
+          <input
+            type="text"
+            value={address}
+            className="w-full px-3 py-2 border rounded-md focus:ring focus:ring-blue-300"
+            onChange={(e) => setAddress(e.target.value)}
+            placeholder="Enter address..."
+          />
+        </div>
+
+
+        <div className="mb-4">
+          <label className="block text-gray-700">Phone Number</label>
+          <input
+            type="text"
+            value={phoneNumber}
+            className="w-full px-3 py-2 border rounded-md focus:ring focus:ring-blue-300"
+            onChange={(e) => setPhoneNumber(e.target.value)}
+            placeholder="Enter phone number..."
+          />
+        </div>
+
+        <div className="mb-4">
+          <label className="block text-gray-700">Email</label>
+          <input
+            type="email"
+            value={email}
+            className="w-full px-3 py-2 border rounded-md focus:ring focus:ring-blue-300"
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Enter email..."
+          />
+        </div>
+
+
+
 
         {/* Submit Button */}
         <div className="mb-4">

@@ -8,7 +8,7 @@ const AgentLogin = () => {
     email: "",
     password: "",
   });
-  
+
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -73,7 +73,7 @@ const AgentLogin = () => {
           </button>
         </form>
         <div>
-            <h1 className="justify-between">Don't have an account? <Link to="/agent-signup">Signup</Link> </h1>
+          <h1 className="justify-between">Don't have an account? <Link to="/agent-signup">Signup</Link> </h1>
         </div>
       </div>
     </div>
