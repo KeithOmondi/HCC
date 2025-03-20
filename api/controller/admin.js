@@ -31,14 +31,34 @@ router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Find admin
-    const admin = await Admin.findOne({ email });
-    if (!admin || !(await bcrypt.compare(password, admin.password))) {
+    const admin = await Admin.findOne({ email }).select("-password");
+
+    if (!admin) {
       return res.status(400).json({ success: false, message: "Invalid credentials" });
     }
 
-    // Generate token
-    adminToken(admin, 200, res);
+    const isMatch = await bcrypt.compare(password, admin.password);
+    if (!isMatch) {
+      return res.status(400).json({ success: false, message: "Invalid credentials" });
+    }
+
+    // Generate JWT Token
+    const token = admin.getJwtToken();
+
+    // Set token in cookie
+    res.cookie("adminToken", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      maxAge: 90 * 24 * 60 * 60 * 1000, // 90 days
+    });
+
+    // ✅ Return both token and admin object
+    res.status(200).json({
+      success: true,
+      token,
+      admin,
+    });
   } catch (error) {
     console.error("❌ Login Error:", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });

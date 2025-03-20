@@ -13,7 +13,7 @@ const propertySchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: [true, "Please enter your password"],
+   
     minLength: [6, "Password should be greater than 6 characters"],
     select: false,
   },
@@ -35,16 +35,16 @@ const propertySchema = new mongoose.Schema({
   avatar: {
     public_id: {
       type: String,
-      required: true,
+     
     },
     url: {
       type: String,
-      required: true,
+      
     },
   },
   zipCode: {
     type: Number,
-    required: true,
+    
   },
   withdrawMethod: {
     type: Object,

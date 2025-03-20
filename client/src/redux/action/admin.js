@@ -21,11 +21,19 @@ export const adminLogin = (email, password, navigate) => async (dispatch) => {
   try {
     dispatch({ type: "ADMIN_LOGIN_REQUEST" });
 
-    const { data } = await axios.post(`${server}/admin/login`, { email, password });
-
+    // 🔹 Send login request
+    const { data } = await axios.post(`${server}/admin/login`, {
+      email,
+      password,
+    });
+console.log(data);
     if (!data.token) throw new Error("Token not received!");
 
     localStorage.setItem("adminToken", data.token);
+    localStorage.setItem("adminId", data.admin.id);
+
+
+    // ✅ Dispatch success action
     dispatch({ type: ADMIN_LOGIN_SUCCESS, payload: { token: data.token } });
 
     console.log("✅ Admin login successful:", data);

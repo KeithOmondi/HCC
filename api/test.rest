@@ -2,12 +2,28 @@ POST http://localhost:8000/api/v2/listing/create-listing
 Content-Type: application/json
 
 {
+  "name": "Event Halls",
+  "description": "Spacious and secure warehouse ideal for storage",
   "category": "Warehouses",
-  "description": "Hall",
-  "discountPrice": "399983",
-  "name": "Hall",
-  "originalPrice": "3000",
-  "propertyId": "67d95ce946b3c78fb8e19012",
+  "originalPrice": "5000",
+  "discountPrice": "4500",
   "stock": "1",
-  "tags": []
+  "tags": ["secure", "spacious", "accessible"],
+  "address": "123 Warehouse St",
+  "zipCode": "12345",
+  "phoneNumber": "+1234567890",
+  "email": "warehouse@example.com",
+  "password": "supersecurepassword",
+  "avatar": {
+    "url": "https://your-image-url.com/avatar.jpg",
+    "public_id": "cloudinary-public-id"
+  },
+"images": [
+  {
+    "path": "C:/Users/hp/Downloads/1.jpg"
+  }
+]
+
 }
+
+
