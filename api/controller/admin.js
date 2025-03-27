@@ -27,16 +27,19 @@ router.post("/register", async (req, res) => {
 });
 
 // Admin Login
+// Admin Login
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    const admin = await Admin.findOne({ email }).select("-password");
-
+    // Ensure the admin is found and retrieve the password field
+    const admin = await Admin.findOne({ email });
+    
     if (!admin) {
       return res.status(400).json({ success: false, message: "Invalid credentials" });
     }
 
+    // Compare password
     const isMatch = await bcrypt.compare(password, admin.password);
     if (!isMatch) {
       return res.status(400).json({ success: false, message: "Invalid credentials" });
@@ -53,17 +56,22 @@ router.post("/login", async (req, res) => {
       maxAge: 90 * 24 * 60 * 60 * 1000, // 90 days
     });
 
-    // ✅ Return both token and admin object
+    // ✅ Return token and admin details (excluding password)
     res.status(200).json({
       success: true,
       token,
-      admin,
+      admin: {
+        id: admin._id,
+        name: admin.name,
+        email: admin.email,
+      },
     });
   } catch (error) {
     console.error("❌ Login Error:", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 });
+
 
 // Admin Logout
 router.get("/logout", adminAuth, (req, res) => {

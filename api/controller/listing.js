@@ -1,220 +1,151 @@
 const express = require("express");
-const { isAuthenticated, isAdmin, isAgent } = require("../middleware/auth");
 const catchAsyncErrors = require("../middleware/catchAsyncErrors");
-const router = express.Router();
 const Listing = require("../model/listing");
 const Transaction = require("../model/transaction");
 const Property = require("../model/property");
 const cloudinary = require("cloudinary");
 const ErrorHandler = require("../utils/ErrorHandler");
+const adminAuth = require("../middleware/adminAuth");
+const multer = require("multer");
+const mongoose = require("mongoose");
 
-// create listing
+const router = express.Router();
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+
+// Helper function to upload images to Cloudinary
+const uploadImage = (file) => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.v2.uploader.upload_stream(
+      { folder: "listings" },
+      (error, uploadedImage) => {
+        if (error) return reject(new Error(`Image upload failed: ${error.message}`));
+        resolve({
+          public_id: uploadedImage.public_id,
+          url: uploadedImage.secure_url,
+        });
+      }
+    );
+    stream.end(file.buffer);
+  });
+};
+
+// Create Listing with Property
 router.post(
   "/create-listing",
+  upload.array("images", 5),
   catchAsyncErrors(async (req, res, next) => {
+    const session = await mongoose.startSession();
+    session.startTransaction();
     try {
-      const { images, name, description, category, originalPrice, discountPrice, stock, tags, address, phoneNumber, email} = req.body;
+      const { name, description, category, originalPrice, discountPrice, stock, tags, address, phoneNumber, email } = req.body;
+
+      if (!req.files || req.files.length === 0) {
+        return next(new ErrorHandler("No images uploaded", 400));
+      }
+
+      // Upload images
+      const imagesLinks = await Promise.all(req.files.map(uploadImage));
 
       // Create Property
-      const newProperty = await Property.create({
-          name,
-          description,
-          category,
-          tags,
-          stock,
-          address,
-          phoneNumber,
-          email,
-      });
-      
+      const [newProperty] = await Property.create([{ name, description, category, tags, stock, address, phoneNumber, email }], { session });
 
-      // Step 2: Upload Images
-      const imagesArray = Array.isArray(images) ? images : [images];
-      const imagesLinks = await Promise.all(
-        imagesArray.map(async (image) => {
-          let result;
-      
-          // Check if it's a local path (e.g., starts with C:\ or /Users)
-          if (image.path) {
-            result = await cloudinary.v2.uploader.upload(image.path, {
-              folder: "listings",
-            });
-          } else if (image.base64) {
-            const base64Data = image.base64.replace(/^data:image\/\w+;base64,/, '');
-            result = await cloudinary.v2.uploader.upload(`data:image/jpeg;base64,${base64Data}`, {
-              folder: "listings",
-            });
-          } else {
-            throw new Error("No valid image path or base64 data provided");
-          }
-      
-          return { public_id: result.public_id, url: result.secure_url };
-        })
+      // Create Listing
+      const [listing] = await Listing.create(
+        [{ name, description, category, originalPrice, discountPrice, stock, tags, images: imagesLinks, propertyId: newProperty._id }],
+        { session }
       );
-      
-      // Step 3: Create Listing & link propertyId
-      const listing = await Listing.create({
-        name,
-        description,
-        category,
-        originalPrice,
-        discountPrice,
-        stock,
-        tags,
-        images: imagesLinks,
-        propertyId: newProperty._id, // linked here!
-      });
 
-      res.status(201).json({
-        success: true,
-        listing,
-        property: newProperty,
-      });
+      await session.commitTransaction();
+      session.endSession();
+      
+      res.status(201).json({ success: true, listing, property: newProperty });
     } catch (error) {
-      console.error("❌ Error creating listing:", error);
+      await session.abortTransaction();
+      session.endSession();
       return next(new ErrorHandler(error.message, 500));
     }
   })
 );
 
-
-
-
-// get all listings of a property
-router.get(
-  "/get-all-listings-property/:id",
-  catchAsyncErrors(async (req, res, next) => {
-    try {
-      const listings = await Listing.find({ propertyId: req.params.id });
-
-      res.status(201).json({
-        success: true,
-        listings,
-      });
-    } catch (error) {
-      return next(new ErrorHandler(error, 400));
-    }
-  })
-);
-
-// delete listing of a property
+// Delete Property Listing
 router.delete(
   "/delete-property-listing/:id",
+  adminAuth("admin"),
   catchAsyncErrors(async (req, res, next) => {
     try {
       const property = await Property.findById(req.params.id);
-
       if (!property) {
-        return next(
-          new ErrorHandler("Property listing not found with this ID", 404)
-        );
+        return next(new ErrorHandler("Property listing not found", 404));
       }
 
-      // Remove images from Cloudinary
-      for (let i = 0; i < property.images.length; i++) {
-        await cloudinary.v2.uploader.destroy(property.images[i].public_id);
-      }
+      const listings = await Listing.find({ propertyId: req.params.id });
 
-      await property.deleteOne(); // Use deleteOne() instead of remove()
+      // Delete images from Cloudinary
+      await Promise.all(
+        listings.flatMap((listing) =>
+          listing.images.map(async (img) => {
+            if (img.public_id) await cloudinary.v2.uploader.destroy(img.public_id);
+          })
+        )
+      );
 
-      res.status(200).json({
-        success: true,
-        message: "Property listing deleted successfully!",
-      });
+      await Listing.deleteMany({ propertyId: req.params.id });
+      await property.deleteOne();
+
+      res.status(200).json({ success: true, message: "Property listing deleted successfully!" });
     } catch (error) {
       return next(new ErrorHandler(error.message, 400));
     }
   })
 );
 
-// get all listings
-router.get(
-  "/get-all-listings",
-  catchAsyncErrors(async (req, res, next) => {
-    try {
-      const listings = await Listing.find().sort({ createdAt: -1 });
-
-      res.status(201).json({
-        success: true,
-        listings,
-      });
-    } catch (error) {
-      return next(new ErrorHandler(error, 400));
-    }
-  })
-);
-
-// review for a listing
+// Update Transaction Review Status
 router.put(
-  "/create-new-review",
+  "/update-transaction-review/:transactionId",
   catchAsyncErrors(async (req, res, next) => {
     try {
-      const { user, rating, comment, listingId, transactionId } = req.body;
+      const { transactionId } = req.params;
+      const { listingId } = req.body;
 
-      const listing = await Listing.findById(listingId);
+      if (!transactionId) return next(new ErrorHandler("Transaction ID is required", 400));
+      if (!listingId) return next(new ErrorHandler("Listing ID is required", 400));
 
-      const review = {
-        user,
-        rating,
-        comment,
-        listingId,
-      };
-
-      const isReviewed = listing.reviews.find(
-        (rev) => rev.user._id === req.user._id
-      );
-
-      if (isReviewed) {
-        listing.reviews.forEach((rev) => {
-          if (rev.user._id === req.user._id) {
-            rev.rating = rating;
-            rev.comment = comment;
-            rev.user = user;
-          }
-        });
-      } else {
-        listing.reviews.push(review);
-      }
-
-      let avg = 0;
-
-      listing.reviews.forEach((rev) => {
-        avg += rev.rating;
-      });
-
-      listing.ratings = avg / listing.reviews.length;
-
-      await listing.save({ validateBeforeSave: false });
-
-      await Transaction.findByIdAndUpdate(
+      const transaction = await Transaction.findByIdAndUpdate(
         transactionId,
         { $set: { "cart.$[elem].isReviewed": true } },
-        { arrayFilters: [{ "elem._id": listingId }], new: true }
+        { arrayFilters: [{ "elem.listingId": listingId }], new: true }
       );
 
-      res.status(200).json({
-        success: true,
-        message: "Reviewed successfully!",
-      });
+      if (!transaction) return next(new ErrorHandler("Transaction not found", 404));
+
+      res.status(200).json({ success: true, message: "Review status updated" });
     } catch (error) {
-      return next(new ErrorHandler(error, 400));
+      return next(new ErrorHandler(error.message, 400));
     }
   })
 );
 
-// all listings --- for admin
+// Admin Fetch All Listings
 router.get(
   "/admin-all-listings",
   catchAsyncErrors(async (req, res, next) => {
     try {
-      const listings = await Listing.find().sort({
-        createdAt: -1,
+      const listings = await Listing.find().populate({
+        path: "propertyId",
+        select: "name address",
+        options: { strictPopulate: false }, // Prevent errors if property is missing
       });
-      res.status(201).json({
-        success: true,
-        listings,
-      });
+
+      if (!listings.length) {
+        console.log("❌ No listings found in DB");
+        return next(new ErrorHandler("No listings found", 404));
+      }
+
+      console.log("✅ Retrieved listings successfully:", listings);
+      res.status(200).json({ success: true, listings });
     } catch (error) {
+      console.error("❌ Error fetching listings:", error);
       return next(new ErrorHandler(error.message, 500));
     }
   })

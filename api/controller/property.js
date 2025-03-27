@@ -150,6 +150,7 @@ router.get("/agent-dashboard", agentAuth, (req, res) => {
 // all agents --- for admin
 router.get(
   "/admin-all-agents",
+  adminAuth("admin"),
   catchAsyncErrors(async (req, res, next) => {
     try {
       const agents = await Property.find().sort({

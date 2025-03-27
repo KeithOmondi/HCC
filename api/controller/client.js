@@ -160,6 +160,7 @@ router.get(
 // Admin - Get All Clients
 router.get(
   "/admin-all-clients",
+  adminAuth("admin"),
   catchAsyncErrors(async (req, res, next) => {
     const clients = await Client.find();
     res.status(200).json({ success: true, clients });

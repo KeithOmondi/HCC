@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { toast } from "react-toastify";
-import { updateAdminPassword, updateAdminProfile } from "../../../redux/action/admin";
+import { updateAdminPassword, updateAdminProfile, logoutAdmin } from "../../../redux/action/admin";
 
 const AdminProfile = () => {
   const dispatch = useDispatch();
@@ -39,6 +39,12 @@ const AdminProfile = () => {
     dispatch(updateAdminPassword({ password, newPassword }))
       .then(() => toast.success("Password updated successfully!"))
       .catch((err) => toast.error(err.response.data.message));
+  };
+
+  // Handle Logout
+  const handleLogout = () => {
+    dispatch(logoutAdmin());
+    toast.success("Logged out successfully!");
   };
 
   return (
@@ -97,6 +103,11 @@ const AdminProfile = () => {
           Update Password
         </button>
       </form>
+
+      {/* Logout Button */}
+      <button onClick={handleLogout} className="w-full bg-red-500 text-white p-2 rounded mt-6">
+        Logout
+      </button>
     </div>
   );
 };

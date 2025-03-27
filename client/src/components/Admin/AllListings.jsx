@@ -8,81 +8,74 @@ import { server } from "../../server";
 
 const AllListings = () => {
   const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get(`${server}/listing/admin-all-listings`, { withCredentials: true }).then((res) => {
-      setData(res.data.listings);
-    });
+    const fetchListings = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await axios.get(`${server}/listing/admin-all-listings`, {
+          withCredentials: true,
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setData(res.data?.listings || []);
+      } catch (error) {
+        console.error("Error fetching listings:", error.response?.data?.message || error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchListings();
   }, []);
 
   const columns = [
     { field: "id", headerName: "Listing Id", minWidth: 150, flex: 0.7 },
-    {
-      field: "name",
-      headerName: "Name",
-      minWidth: 180,
-      flex: 1.4,
-    },
-    {
-      field: "price",
-      headerName: "Price",
-      minWidth: 100,
-      flex: 0.6,
-    },
-    {
-      field: "availability",
-      headerName: "Availability",
-      type: "string",
-      minWidth: 100,
-      flex: 0.6,
-    },
-    {
-      field: "sold",
-      headerName: "Sold",
-      type: "number",
-      minWidth: 130,
-      flex: 0.6,
-    },
+    { field: "name", headerName: "Name", minWidth: 180, flex: 1.4 },
+    { field: "price", headerName: "Price", minWidth: 100, flex: 0.6 },
+    { field: "availability", headerName: "Availability", minWidth: 100, flex: 0.6 },
+    { field: "sold", headerName: "Sold", minWidth: 130, flex: 0.6 },
     {
       field: "Preview",
+      headerName: "Preview",
       flex: 0.8,
       minWidth: 100,
-      headerName: "",
-      type: "number",
       sortable: false,
-      renderCell: (params) => {
-        return (
-          <>
-            <Link to={`/listing/${params.id}`}>
-              <Button>
-                <AiOutlineEye size={20} />
-              </Button>
-            </Link>
-          </>
-        );
-      },
+      renderCell: (params) => (
+        <Link to={`/listing/${params.row.id}`}>
+          <Button>
+            <AiOutlineEye size={20} />
+          </Button>
+        </Link>
+      ),
     },
   ];
 
-  const row = [];
-
-  data &&
-    data.forEach((item) => {
-      row.push({
-        id: item._id,
-        name: item.name,
-        price: "Ksh " + item.discountPrice,
-        availability: item.availability,
-        sold: item?.sold_out,
-      });
-    });
+  const rows = data.map((item) => ({
+    id: item._id,
+    name: item.name,
+    price: `Ksh ${item.discountPrice || "0.00"}`,
+    availability: item.availability || "Unknown",
+    sold: item.sold_out !== undefined ? item.sold_out : "N/A",
+  }));
 
   return (
-    <>
-      <div className="w-full mx-8 pt-1 mt-10 bg-white">
-        <DataGrid rows={row} columns={columns} pageSize={10} disableSelectionOnClick autoHeight />
-      </div>
-    </>
+    <div className="w-full mx-8 pt-1 mt-10 bg-white">
+      {loading ? (
+        <p className="text-center">Loading listings...</p>
+      ) : (
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          autoHeight
+          disableSelectionOnClick
+          initialState={{ pagination: { paginationModel: { pageSize: 10 } } }}
+        />
+      )}
+    </div>
   );
 };
 

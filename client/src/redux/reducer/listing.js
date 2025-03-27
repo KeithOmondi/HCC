@@ -27,15 +27,18 @@ const initialState = {
 
 export const listingReducer = createReducer(initialState, (builder) => {
   builder
+    // Create Listing
     .addCase(LISTING_CREATE_REQUEST, (state) => {
       state.isLoading = true;
       state.success = false;
       state.error = null;
+      state.message = null;
     })
     .addCase(LISTING_CREATE_SUCCESS, (state, action) => {
       state.isLoading = false;
       state.listing = action.payload;
       state.success = true;
+      state.message = "Listing created successfully!";
     })
     .addCase(LISTING_CREATE_FAIL, (state, action) => {
       state.isLoading = false;
@@ -46,6 +49,7 @@ export const listingReducer = createReducer(initialState, (builder) => {
     // Get all listings of a property
     .addCase(GET_ALL_LISTINGS_PROPERTY_REQUEST, (state) => {
       state.isLoading = true;
+      state.error = null;
     })
     .addCase(GET_ALL_LISTINGS_PROPERTY_SUCCESS, (state, action) => {
       state.isLoading = false;
@@ -56,22 +60,31 @@ export const listingReducer = createReducer(initialState, (builder) => {
       state.error = action.payload;
     })
 
-    // Delete listing
+    // Delete Listing
     .addCase(DELETE_LISTING_REQUEST, (state) => {
       state.isLoading = true;
+      state.error = null;
+      state.message = null;
     })
     .addCase(DELETE_LISTING_SUCCESS, (state, action) => {
       state.isLoading = false;
-      state.message = action.payload;
+      state.message = "Listing deleted successfully!";
+      
+      // Ensure action.payload contains the ID of the deleted listing
+      const deletedId = action.payload; 
+      state.listings = state.listings.filter(listing => listing._id !== deletedId);
+      state.allListings = state.allListings.filter(listing => listing._id !== deletedId);
     })
     .addCase(DELETE_LISTING_FAIL, (state, action) => {
       state.isLoading = false;
       state.error = action.payload;
+      state.success = false;
     })
 
     // Get all listings
     .addCase(GET_ALL_LISTINGS_REQUEST, (state) => {
       state.isLoading = true;
+      state.error = null;
     })
     .addCase(GET_ALL_LISTINGS_SUCCESS, (state, action) => {
       state.isLoading = false;
