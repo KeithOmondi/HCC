@@ -13,27 +13,21 @@ import {
   GET_ALL_LISTINGS_REQUEST,
   GET_ALL_LISTINGS_SUCCESS,
   GET_ALL_LISTINGS_FAIL,
-  CLEAR_ERRORS,
-  FETCH_LISTINGS_FAILURE,
   FETCH_LISTINGS_SUCCESS,
+  FETCH_LISTINGS_FAILURE,
+  CLEAR_ERRORS,
 } from "./actionTypes";
 
 // Utility function to validate MongoDB ObjectId
 const isValidObjectId = (id) => /^[0-9a-fA-F]{24}$/.test(id);
 
-// Reusable API Request Handler
-const apiRequest = async (
-  dispatch,
-  requestType,
-  successType,
-  failType,
-  apiCall
-) => {
+// API Request Handler (Reusable)
+const apiRequest = async (dispatch, requestType, successType, failType, apiCall) => {
   try {
     dispatch({ type: requestType });
     const { data } = await apiCall();
     dispatch({ type: successType, payload: data });
-    return data; // Return data for further use if needed
+    return data;
   } catch (error) {
     const errorMessage = error.response?.data?.message || "Something went wrong";
     console.error(`Error in ${requestType}:`, errorMessage);
@@ -53,97 +47,20 @@ export const createListing = (listingData) => async (dispatch) => {
       () => axios.post(`${server}/listing/create-listing`, listingData, { withCredentials: true })
     );
 
-    // Fetch updated listings after creation
-    dispatch(fetchListings());
+    // Trigger fetching listings after creation
+    dispatch(fetchListings());  // This should update the listings state in Redux
   } catch (error) {
     console.error("Error creating listing:", error);
   }
 };
 
-
-// Get All Listings of a Property
-export const getAllListingsProperty = (id) => async (dispatch) => {
-  if (!isValidObjectId(id)) {
-    return dispatch({ type: GET_ALL_LISTINGS_PROPERTY_FAIL, payload: "Invalid property ID format" });
-  }
-
-  return await apiRequest(
-    dispatch,
-    GET_ALL_LISTINGS_PROPERTY_REQUEST,
-    GET_ALL_LISTINGS_PROPERTY_SUCCESS,
-    GET_ALL_LISTINGS_PROPERTY_FAIL,
-    () => axios.get(`${server}/listing/get-all-listings-property/${id}`, { withCredentials: true })
-  );
-};
-
-// Delete Listing
-export const deleteListing = (id) => async (dispatch) => {
-  if (!isValidObjectId(id)) {
-    return dispatch({ type: DELETE_LISTING_FAIL, payload: "Invalid listing ID format" });
-  }
-
-  return await apiRequest(
-    dispatch,
-    DELETE_LISTING_REQUEST,
-    DELETE_LISTING_SUCCESS,
-    DELETE_LISTING_FAIL,
-    () => axios.delete(`${server}/listing/delete-property-listing/${id}`, { withCredentials: true })
-  );
-};
-
-/// ✅ Fetch All Listings (Admin Only)
-export const getAllListings = () => async (dispatch) => {
-  dispatch({ type: GET_ALL_LISTINGS_REQUEST });
-
-  try {
-    // 📌 Retrieve Admin Token
-    const token = localStorage.getItem("adminToken");
-    console.log("🔍 Retrieved Admin Token:", token || "❌ No Token Found");
-
-    if (!token) {
-      console.error("❌ No admin token found. Access denied.");
-      dispatch({
-        type: GET_ALL_LISTINGS_FAIL,
-        payload: "Admin authentication required",
-      });
-      return;
-    }
-
-    // 📡 Send API Request
-    const apiUrl = `${server}/listing/get-all-listings`;
-    console.log("📡 Sending request to:", apiUrl);
-
-    const response = await axios.get(apiUrl, {
-      headers: { Authorization: `Bearer ${token}` },
-      withCredentials: true,
-    });
-
-    console.log("✅ API Response:", response.data);
-
-    // ✅ Dispatch Success
-    dispatch({
-      type: GET_ALL_LISTINGS_SUCCESS,
-      payload: response.data.listings || [],
-    });
-  } catch (error) {
-    console.error("❌ Error in getAllListings:", error.response?.data || error.message);
-    console.log("🔴 Full Error Object:", error);
-
-    dispatch({
-      type: GET_ALL_LISTINGS_FAIL,
-      payload: error.response?.data?.message || "Failed to fetch listings",
-    });
-  }
-};
-
-
-//fetch listings
+// Fetch All Listings (General Use)
 export const fetchListings = () => async (dispatch) => {
   try {
-    const response = await axios.get(`${server}/listing/admin-all-listings`); // Correct endpoint
+    const { data } = await axios.get(`${server}/listing/admin-all-listings`);
     dispatch({
       type: FETCH_LISTINGS_SUCCESS,
-      payload: response.data.listings, // Ensure it matches the API response structure
+      payload: data.listings || [],
     });
   } catch (error) {
     dispatch({
@@ -153,8 +70,42 @@ export const fetchListings = () => async (dispatch) => {
   }
 };
 
+// Fetch All Property Listings
+export const fetchAllPropertyListings = () => async (dispatch) => {
+  try {
+    dispatch({ type: GET_ALL_LISTINGS_PROPERTY_REQUEST });
+    const { data } = await axios.get(`${server}/listing/all-property-listings`);
+    dispatch({
+      type: GET_ALL_LISTINGS_PROPERTY_SUCCESS,
+      payload: data.propertyListings || [],
+    });
+  } catch (error) {
+    dispatch({
+      type: GET_ALL_LISTINGS_PROPERTY_FAIL,
+      payload: error.response?.data?.message || "Error fetching property listings",
+    });
+  }
+};
 
+// Delete Listing
+export const deleteListing = (listingId) => async (dispatch) => {
+  try {
+    if (!isValidObjectId(listingId)) {
+      throw new Error("Invalid listing ID");
+    }
 
+    dispatch({ type: DELETE_LISTING_REQUEST });
+    await axios.delete(`${server}/listing/delete-listing/${listingId}`, { withCredentials: true });
+
+    dispatch({ type: DELETE_LISTING_SUCCESS, payload: listingId });
+    dispatch(fetchListings());  // Trigger fetching updated listings after deletion
+  } catch (error) {
+    dispatch({
+      type: DELETE_LISTING_FAIL,
+      payload: error.response?.data?.message || "Error deleting listing",
+    });
+  }
+};
 
 // Clear Errors
 export const clearErrors = () => (dispatch) => {

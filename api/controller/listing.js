@@ -30,7 +30,7 @@ const uploadImage = (file) => {
   });
 };
 
-// Create Listing with Property
+// Create Listing with Property  
 router.post(
   "/create-listing",
   upload.array("images", 5),
@@ -44,13 +44,10 @@ router.post(
         return next(new ErrorHandler("No images uploaded", 400));
       }
 
-      // Upload images
       const imagesLinks = await Promise.all(req.files.map(uploadImage));
 
-      // Create Property
       const [newProperty] = await Property.create([{ name, description, category, tags, stock, address, phoneNumber, email }], { session });
 
-      // Create Listing
       const [listing] = await Listing.create(
         [{ name, description, category, originalPrice, discountPrice, stock, tags, images: imagesLinks, propertyId: newProperty._id }],
         { session }
@@ -81,7 +78,6 @@ router.delete(
 
       const listings = await Listing.find({ propertyId: req.params.id });
 
-      // Delete images from Cloudinary
       await Promise.all(
         listings.flatMap((listing) =>
           listing.images.map(async (img) => {
@@ -100,32 +96,6 @@ router.delete(
   })
 );
 
-// Update Transaction Review Status
-router.put(
-  "/update-transaction-review/:transactionId",
-  catchAsyncErrors(async (req, res, next) => {
-    try {
-      const { transactionId } = req.params;
-      const { listingId } = req.body;
-
-      if (!transactionId) return next(new ErrorHandler("Transaction ID is required", 400));
-      if (!listingId) return next(new ErrorHandler("Listing ID is required", 400));
-
-      const transaction = await Transaction.findByIdAndUpdate(
-        transactionId,
-        { $set: { "cart.$[elem].isReviewed": true } },
-        { arrayFilters: [{ "elem.listingId": listingId }], new: true }
-      );
-
-      if (!transaction) return next(new ErrorHandler("Transaction not found", 404));
-
-      res.status(200).json({ success: true, message: "Review status updated" });
-    } catch (error) {
-      return next(new ErrorHandler(error.message, 400));
-    }
-  })
-);
-
 // Admin Fetch All Listings
 router.get(
   "/admin-all-listings",
@@ -138,14 +108,11 @@ router.get(
       });
 
       if (!listings.length) {
-        console.log("❌ No listings found in DB");
         return next(new ErrorHandler("No listings found", 404));
       }
 
-      console.log("✅ Retrieved listings successfully:", listings);
       res.status(200).json({ success: true, listings });
     } catch (error) {
-      console.error("❌ Error fetching listings:", error);
       return next(new ErrorHandler(error.message, 500));
     }
   })

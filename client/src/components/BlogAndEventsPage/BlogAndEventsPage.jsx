@@ -21,41 +21,42 @@ import Footer from "../Layout/Footer";
 const initialPosts = [
   {
     id: 1,
+    type: "post",
     user: "John Doe",
     avatar: "https://randomuser.me/api/portraits/men/1.jpg",
     content: "Just listed a new rental!",
-    image: "https://source.unsplash.com/600x400/?apartment",
-    timestamp: "2h ago",
-    type: "post",
+    image: "https://source.unsplash.com/600x400/?apartment,rent",
+    timestamp: "2 hours ago",
   },
   {
     id: 2,
+    type: "blog",
     user: "Jane Smith",
     avatar: "https://randomuser.me/api/portraits/women/2.jpg",
     content: "New rental opportunities available.",
-    image: "https://source.unsplash.com/600x400/?house",
-    timestamp: "5h ago",
-    type: "blog",
+    image: "https://source.unsplash.com/600x400/?house,rental",
+    timestamp: "5 hours ago",
   },
   {
     id: 3,
+    type: "event",
     user: "EstateHub Admin",
     avatar: "https://randomuser.me/api/portraits/men/3.jpg",
     content: "We updated our website!",
-    image: "https://source.unsplash.com/600x400/?real-estate",
-    timestamp: "1d ago",
-    type: "event",
+    image: "https://source.unsplash.com/600x400/?real-estate,website",
+    timestamp: "1 day ago",
   },
   {
     id: 4,
+    type: "event",
     user: "Sarah Brown",
     avatar: "https://randomuser.me/api/portraits/women/5.jpg",
     content: "Open house this weekend!",
-    image: "https://source.unsplash.com/600x400/?open-house",
-    timestamp: "6h ago",
-    type: "event",
+    image: "https://source.unsplash.com/600x400/?open-house,real-estate",
+    timestamp: "6 hours ago",
   },
 ];
+
 
 const BlogAndEventsPage = () => {
   const [posts, setPosts] = useState(initialPosts);

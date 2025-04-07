@@ -9,7 +9,6 @@ import { listingsData } from "../../static/data";
 const CreateListing = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
   const { error, success } = useSelector((state) => state.listings) || {};
 
   const [formData, setFormData] = useState({
@@ -43,9 +42,9 @@ const CreateListing = () => {
     }
     if (success) {
       toast.success("Listing created successfully!");
-      setTimeout(() => window.location.reload(), 1500);
+      setTimeout(() => navigate("/listings"), 1500); // Redirect instead of reload
     }
-  }, [dispatch, error, success]);
+  }, [dispatch, error, success, navigate]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -53,51 +52,31 @@ const CreateListing = () => {
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
-    e.target.value = ""; // Clears input to allow re-uploading the same image.
-  
-    const newImages = [...formData.images];
-    const newPreviewImages = [...previewImages];
-  
-    files.forEach((file) => {
-      newImages.push(file);
-      newPreviewImages.push(URL.createObjectURL(file));
-    });
-  
-    setFormData({ ...formData, images: newImages });
-    setPreviewImages(newPreviewImages);
+    const newPreviewImages = files.map((file) => URL.createObjectURL(file));
+    setFormData((prev) => ({ ...prev, images: [...prev.images, ...files] }));
+    setPreviewImages((prev) => [...prev, ...newPreviewImages]);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (!formData.name || !formData.description || !formData.category || !formData.address || !formData.phoneNumber || !formData.email) {
-      return toast.error("Please fill all required fields.");
-    }
+    const requiredFields = ["name", "description", "category", "address", "phoneNumber", "email"];
+    const hasEmpty = requiredFields.some((field) => !formData[field]);
 
-    if (formData.images.length === 0) {
-      return toast.error("Please upload at least one image.");
-    }
+    if (hasEmpty) return toast.error("Please fill all required fields.");
+    if (formData.images.length === 0) return toast.error("Please upload at least one image.");
 
     const formPayload = new FormData();
-  
-    formData.images.forEach((image, index) => {
-      if (image instanceof File) {
-        formPayload.append("images", image);
-      } else {
-        console.error(`Invalid file at index ${index}:`, image);
-        return toast.error(`Invalid image at index ${index}. Please re-upload.`);
-      }
+    formData.images.forEach((image) => {
+      if (image instanceof File) formPayload.append("images", image);
     });
 
-    Object.keys(formData).forEach((key) => {
-      if (key !== "images") {
-        formPayload.append(key, formData[key]);
-      }
+    Object.entries(formData).forEach(([key, value]) => {
+      if (key !== "images") formPayload.append(key, value);
     });
 
     dispatch(createListing(formPayload));
 
-    // Clear form fields after submission
     setFormData({
       name: "",
       description: "",
@@ -111,6 +90,7 @@ const CreateListing = () => {
       email: "",
       images: [],
     });
+
     setPreviewImages([]);
   };
 
@@ -162,7 +142,9 @@ const CreateListing = () => {
           >
             <option value="">Choose a category</option>
             {categories.map((cat, index) => (
-              <option key={index} value={cat}>{cat}</option>
+              <option key={index} value={cat}>
+                {cat}
+              </option>
             ))}
           </select>
         </div>
@@ -194,13 +176,21 @@ const CreateListing = () => {
               <AiOutlinePlusCircle size={30} className="text-gray-500" />
             </label>
             {previewImages.map((img, index) => (
-              <img key={index} src={img} alt="Preview" className="h-24 w-24 object-cover m-2 rounded-md shadow-md" />
+              <img
+                key={index}
+                src={img}
+                alt="Preview"
+                className="h-24 w-24 object-cover m-2 rounded-md shadow-md"
+              />
             ))}
           </div>
         </div>
 
         <div className="mb-4">
-          <button type="submit" className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition-all duration-300">
+          <button
+            type="submit"
+            className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition-all duration-300"
+          >
             Create Listing
           </button>
         </div>

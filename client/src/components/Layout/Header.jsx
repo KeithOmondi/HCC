@@ -28,16 +28,20 @@ const Header = () => {
 
   useEffect(() => {
     const storedClient = sessionStorage.getItem("client");
-
-    if (storedClient) {
+  
+    if (storedClient && storedClient !== "undefined") {
       try {
         const parsedClient = JSON.parse(storedClient);
-        setUsername(parsedClient?.name || ""); // Optional chaining prevents errors
+        setUsername(parsedClient?.name || "");
       } catch (error) {
         console.error("Error parsing client data:", error);
       }
+    } else {
+      console.warn("No valid client data found in sessionStorage.");
     }
   }, []);
+  
+  
 
   const handleRentSelection = (path, category) => {
     navigate(`${path}?category=${encodeURIComponent(category)}`);

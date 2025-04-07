@@ -1,4 +1,3 @@
-import { createReducer } from "@reduxjs/toolkit";
 import {
   LISTING_CREATE_REQUEST,
   LISTING_CREATE_SUCCESS,
@@ -12,91 +11,62 @@ import {
   GET_ALL_LISTINGS_REQUEST,
   GET_ALL_LISTINGS_SUCCESS,
   GET_ALL_LISTINGS_FAIL,
+  FETCH_LISTINGS_FAILURE,
+  FETCH_LISTINGS_SUCCESS,
   CLEAR_ERRORS,
-} from "./actionTypes"; // Ensure correct import path
+} from "../action/actionTypes";
 
 const initialState = {
-  isLoading: false,
-  listing: null,
   listings: [],
-  allListings: [],
-  message: null,
+  loading: false,
   error: null,
-  success: false,
 };
 
-export const listingReducer = createReducer(initialState, (builder) => {
-  builder
-    // Create Listing
-    .addCase(LISTING_CREATE_REQUEST, (state) => {
-      state.isLoading = true;
-      state.success = false;
-      state.error = null;
-      state.message = null;
-    })
-    .addCase(LISTING_CREATE_SUCCESS, (state, action) => {
-      state.isLoading = false;
-      state.listing = action.payload;
-      state.success = true;
-      state.message = "Listing created successfully!";
-    })
-    .addCase(LISTING_CREATE_FAIL, (state, action) => {
-      state.isLoading = false;
-      state.error = action.payload;
-      state.success = false;
-    })
+// Your reducer function
+export const listingReducer = (state = initialState, action) => {
+  switch (action.type) {
+    case LISTING_CREATE_REQUEST:
+    case GET_ALL_LISTINGS_PROPERTY_REQUEST:
+    case DELETE_LISTING_REQUEST:
+    case GET_ALL_LISTINGS_REQUEST:
+      return { ...state, loading: true };
 
-    // Get all listings of a property
-    .addCase(GET_ALL_LISTINGS_PROPERTY_REQUEST, (state) => {
-      state.isLoading = true;
-      state.error = null;
-    })
-    .addCase(GET_ALL_LISTINGS_PROPERTY_SUCCESS, (state, action) => {
-      state.isLoading = false;
-      state.listings = action.payload;
-    })
-    .addCase(GET_ALL_LISTINGS_PROPERTY_FAIL, (state, action) => {
-      state.isLoading = false;
-      state.error = action.payload;
-    })
+    case LISTING_CREATE_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        listings: [...state.listings, action.payload],  // Add newly created listing
+      };
 
-    // Delete Listing
-    .addCase(DELETE_LISTING_REQUEST, (state) => {
-      state.isLoading = true;
-      state.error = null;
-      state.message = null;
-    })
-    .addCase(DELETE_LISTING_SUCCESS, (state, action) => {
-      state.isLoading = false;
-      state.message = "Listing deleted successfully!";
-      
-      // Ensure action.payload contains the ID of the deleted listing
-      const deletedId = action.payload; 
-      state.listings = state.listings.filter(listing => listing._id !== deletedId);
-      state.allListings = state.allListings.filter(listing => listing._id !== deletedId);
-    })
-    .addCase(DELETE_LISTING_FAIL, (state, action) => {
-      state.isLoading = false;
-      state.error = action.payload;
-      state.success = false;
-    })
+    case GET_ALL_LISTINGS_PROPERTY_SUCCESS:
+      return { ...state, loading: false, listings: action.payload };
 
-    // Get all listings
-    .addCase(GET_ALL_LISTINGS_REQUEST, (state) => {
-      state.isLoading = true;
-      state.error = null;
-    })
-    .addCase(GET_ALL_LISTINGS_SUCCESS, (state, action) => {
-      state.isLoading = false;
-      state.allListings = action.payload;
-    })
-    .addCase(GET_ALL_LISTINGS_FAIL, (state, action) => {
-      state.isLoading = false;
-      state.error = action.payload;
-    })
+    case DELETE_LISTING_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        listings: state.listings.filter(
+          (listing) => listing._id !== action.payload
+        ),
+      };
 
-    // Clear errors
-    .addCase(CLEAR_ERRORS, (state) => {
-      state.error = null;
-    });
-});
+    case GET_ALL_LISTINGS_SUCCESS:
+      return { ...state, loading: false, listings: action.payload };
+
+    case FETCH_LISTINGS_SUCCESS:
+      console.log("Updated listings in reducer:", action.payload);
+      return { ...state, listings: action.payload };
+
+    case FETCH_LISTINGS_FAILURE:
+    case GET_ALL_LISTINGS_PROPERTY_FAIL:
+    case DELETE_LISTING_FAIL:
+    case GET_ALL_LISTINGS_FAIL:
+      return { ...state, loading: false, error: action.payload };
+
+    case CLEAR_ERRORS:
+      return { ...state, error: null };
+
+    default:
+      return state;
+  }
+};

@@ -8,33 +8,50 @@ import { fetchListings } from "../../redux/action/listing";
 const RentingPage = () => {
   const dispatch = useDispatch();
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [updateKey, setUpdateKey] = useState(0);
+
+  const { listings = [], loading, error } = useSelector(
+    (state) => state.listings ?? {}
+  );
 
   useEffect(() => {
-    dispatch(fetchListings());
-  }, [dispatch]);
-
-  const { listings = [] } = useSelector((state) => state.listing || {});  
+    const fetchData = async () => {
+      try {
+        await dispatch(fetchListings());
+        setUpdateKey((prevKey) => prevKey + 1);  // Force re-render by updating the key
+      } catch (error) {
+        console.error("Failed to fetch listings:", error);
+      }
+    };
+    fetchData();
+  }, [dispatch]);  // Ensure [dispatch] is in the dependency array
+  
 
   const filteredListings = useMemo(() => {
     return selectedCategory === "All"
       ? listings
-      : listings.filter((item) => item.category?.toLowerCase() === selectedCategory.toLowerCase());
+      : listings.filter(
+          (item) =>
+            item.category?.toLowerCase() === selectedCategory.toLowerCase()
+        );
   }, [selectedCategory, listings]);
 
-  const categories = [
+  const categories = useMemo(() => [
     { name: "All", icon: null },
     { name: "Warehouses", icon: <FaWarehouse /> },
     { name: "Units", icon: <FaBuilding /> },
     { name: "Event Spaces", icon: <FaChair /> },
     { name: "Office Spaces", icon: <FaBriefcase /> },
-  ];
+  ], []);
 
   return (
     <>
       <Header />
 
-      <div className="p-4 sm:p-6 bg-gray-100 min-h-screen">
-        <h2 className="text-xl sm:text-2xl font-bold text-center mb-4 sm:mb-6">Available Rentals</h2>
+      <div className="p-4 sm:p-6 bg-gray-100 min-h-screen" key={updateKey}>
+        <h2 className="text-xl sm:text-2xl font-bold text-center mb-4 sm:mb-6">
+          Available Rentals
+        </h2>
 
         {/* Category Selection */}
         <div className="flex overflow-x-auto space-x-3 sm:justify-center mb-4 sm:mb-6 scrollbar-hide">
@@ -42,15 +59,16 @@ const RentingPage = () => {
             <button
               key={category.name}
               onClick={() => setSelectedCategory(category.name)}
-              className={`px-3 py-1 sm:px-4 sm:py-2 rounded-lg transition duration-300 flex items-center space-x-2
-                ${
-                  selectedCategory === category.name
-                    ? "bg-blue-600 text-white"
-                    : "bg-white text-gray-700 border border-gray-300"
-                }`}
+              className={`px-3 py-1 sm:px-4 sm:py-2 rounded-lg transition duration-300 flex items-center space-x-2 ${
+                selectedCategory === category.name
+                  ? "bg-blue-600 text-white"
+                  : "bg-white text-gray-700 border border-gray-300"
+              }`}
               aria-label={`Filter by ${category.name}`}
+              aria-pressed={selectedCategory === category.name}
             >
-              {category.icon} <span className="text-sm sm:text-base">{category.name}</span>
+              {category.icon}{" "}
+              <span className="text-sm sm:text-base">{category.name}</span>
             </button>
           ))}
         </div>
@@ -59,18 +77,30 @@ const RentingPage = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {filteredListings.length > 0 ? (
             filteredListings.map((listing) => {
-              const imageUrl = listing?.images?.length > 0 ? listing.images[0].url : "/placeholder.jpg";
+              const imageUrl =
+                listing?.images?.length > 0 ? listing?.images[0]?.url : "/placeholder.jpg";
+
               return (
-                <div key={listing._id} className="bg-white shadow-md rounded-lg p-3 sm:p-4">
+                <div
+                  key={listing._id}
+                  className="bg-white shadow-md rounded-lg p-3 sm:p-4"
+                >
                   <img
                     src={imageUrl}
-                    alt={listing.name || "Rental Property"}
+                    alt={listing.name || "Rental Listing"}
                     className="w-full h-40 sm:h-48 object-cover rounded-md mb-2 sm:mb-4"
                   />
-                  <h3 className="text-sm sm:text-lg font-semibold">{listing.name || "Unnamed Listing"}</h3>
-                  <p className="text-gray-600 text-xs sm:text-sm">Category: {listing.category || "N/A"}</p>
+                  <h3 className="text-sm sm:text-lg font-semibold">
+                    {listing.name || "Unnamed Listing"}
+                  </h3>
+                  <p className="text-gray-600 text-xs sm:text-sm">
+                    Category: {listing.category || "Uncategorized"}
+                  </p>
                   <p className="text-gray-800 font-bold text-sm sm:text-base">
-                    Price: Ksh {listing.discountPrice || listing.originalPrice || "Not Available"}
+                    Price: Ksh{" "}
+                    {listing.discountPrice ||
+                      listing.originalPrice ||
+                      "Not Available"}
                   </p>
                 </div>
               );

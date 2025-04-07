@@ -13,6 +13,8 @@ export const DELETE_LISTING_FAIL = "deleteListingFailed";
 export const GET_ALL_LISTINGS_REQUEST = "getAllListingsRequest";
 export const GET_ALL_LISTINGS_SUCCESS = "getAllListingsSuccess";
 export const GET_ALL_LISTINGS_FAIL = "getAllListingsFailed";
+export const FETCH_LISTINGS_SUCCESS = "fetchAllListingSuccess";
+export const FETCH_LISTINGS_FAILURE = "fetchListingsFailed"
 
 export const CLEAR_ERRORS = "clearErrors";
 
