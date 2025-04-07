@@ -10,32 +10,29 @@ import { cartReducer } from "./reducer/cart";
 import adminReducer from "./reducer/admin";
 import { listingReducer } from "./reducer/listing";
 
-// 🔹 Persist Config for Admin Only
+// Only persist the admin slice
 const adminPersistConfig = {
   key: "admin",
   storage,
 };
 
-// 🔹 Combining Reducers
 const rootReducer = combineReducers({
   client: clientReducer,
   transaction: transactionReducer,
   agent: agentReducer,
-  listing: listingReducer,
+  listing: listingReducer, // 🔹 Correct key for listing reducer
   event: eventReducer,
   cart: cartReducer,
-  admin: persistReducer(adminPersistConfig, adminReducer), // ✅ Persisting only 'admin' reducer
+  admin: persistReducer(adminPersistConfig, adminReducer),
 });
 
-// 🔹 Configure Store
 export const store = configureStore({
-  reducer: rootReducer, // ✅ No need to persist entire rootReducer
+  reducer: rootReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
-      serializableCheck: false, // Prevent serialization issues
+      serializableCheck: false,
     }),
-  devTools: process.env.NODE_ENV !== "production", // Enable DevTools only in development
+  devTools: process.env.NODE_ENV !== "production",
 });
 
-// 🔹 Persistor
 export const persistor = persistStore(store);

@@ -10,22 +10,22 @@ const RentingPage = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [updateKey, setUpdateKey] = useState(0);
 
+  // ✅ FIX: Correctly access 'listing' from state (not 'listings')
   const { listings = [], loading, error } = useSelector(
-    (state) => state.listings ?? {}
+    (state) => state.listing ?? {}
   );
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         await dispatch(fetchListings());
-        setUpdateKey((prevKey) => prevKey + 1);  // Force re-render by updating the key
+        setUpdateKey((prevKey) => prevKey + 1); // Force re-render
       } catch (error) {
         console.error("Failed to fetch listings:", error);
       }
     };
     fetchData();
-  }, [dispatch]);  // Ensure [dispatch] is in the dependency array
-  
+  }, [dispatch]);
 
   const filteredListings = useMemo(() => {
     return selectedCategory === "All"
@@ -67,7 +67,7 @@ const RentingPage = () => {
               aria-label={`Filter by ${category.name}`}
               aria-pressed={selectedCategory === category.name}
             >
-              {category.icon}{" "}
+              {category.icon && <span>{category.icon}</span>}
               <span className="text-sm sm:text-base">{category.name}</span>
             </button>
           ))}
@@ -78,7 +78,7 @@ const RentingPage = () => {
           {filteredListings.length > 0 ? (
             filteredListings.map((listing) => {
               const imageUrl =
-                listing?.images?.length > 0 ? listing?.images[0]?.url : "/placeholder.jpg";
+                listing?.images?.[0]?.url || "/placeholder.jpg";
 
               return (
                 <div

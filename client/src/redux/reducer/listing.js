@@ -11,8 +11,8 @@ import {
   GET_ALL_LISTINGS_REQUEST,
   GET_ALL_LISTINGS_SUCCESS,
   GET_ALL_LISTINGS_FAIL,
-  FETCH_LISTINGS_FAILURE,
   FETCH_LISTINGS_SUCCESS,
+  FETCH_LISTINGS_FAILURE,
   CLEAR_ERRORS,
 } from "../action/actionTypes";
 
@@ -22,7 +22,6 @@ const initialState = {
   error: null,
 };
 
-// Your reducer function
 export const listingReducer = (state = initialState, action) => {
   switch (action.type) {
     case LISTING_CREATE_REQUEST:
@@ -35,33 +34,35 @@ export const listingReducer = (state = initialState, action) => {
       return {
         ...state,
         loading: false,
-        listings: [...state.listings, action.payload],  // Add newly created listing
+        listings: [...state.listings, action.payload],
       };
 
     case GET_ALL_LISTINGS_PROPERTY_SUCCESS:
-      return { ...state, loading: false, listings: action.payload };
+    case GET_ALL_LISTINGS_SUCCESS:
+    case FETCH_LISTINGS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        listings: action.payload,
+      };
 
     case DELETE_LISTING_SUCCESS:
       return {
         ...state,
         loading: false,
-        listings: state.listings.filter(
-          (listing) => listing._id !== action.payload
-        ),
+        listings: state.listings.filter((listing) => listing._id !== action.payload),
       };
 
-    case GET_ALL_LISTINGS_SUCCESS:
-      return { ...state, loading: false, listings: action.payload };
-
-    case FETCH_LISTINGS_SUCCESS:
-      console.log("Updated listings in reducer:", action.payload);
-      return { ...state, listings: action.payload };
-
     case FETCH_LISTINGS_FAILURE:
+    case LISTING_CREATE_FAIL:
     case GET_ALL_LISTINGS_PROPERTY_FAIL:
     case DELETE_LISTING_FAIL:
     case GET_ALL_LISTINGS_FAIL:
-      return { ...state, loading: false, error: action.payload };
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+      };
 
     case CLEAR_ERRORS:
       return { ...state, error: null };

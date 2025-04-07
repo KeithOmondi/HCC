@@ -18,10 +18,9 @@ import {
   CLEAR_ERRORS,
 } from "./actionTypes";
 
-// Utility function to validate MongoDB ObjectId
 const isValidObjectId = (id) => /^[0-9a-fA-F]{24}$/.test(id);
 
-// API Request Handler (Reusable)
+// Reusable API request function
 const apiRequest = async (dispatch, requestType, successType, failType, apiCall) => {
   try {
     dispatch({ type: requestType });
@@ -30,7 +29,6 @@ const apiRequest = async (dispatch, requestType, successType, failType, apiCall)
     return data;
   } catch (error) {
     const errorMessage = error.response?.data?.message || "Something went wrong";
-    console.error(`Error in ${requestType}:`, errorMessage);
     dispatch({ type: failType, payload: errorMessage });
     throw error;
   }
@@ -47,14 +45,14 @@ export const createListing = (listingData) => async (dispatch) => {
       () => axios.post(`${server}/listing/create-listing`, listingData, { withCredentials: true })
     );
 
-    // Trigger fetching listings after creation
-    dispatch(fetchListings());  // This should update the listings state in Redux
+    // Refetch listings after creation
+    dispatch(fetchListings());
   } catch (error) {
-    console.error("Error creating listing:", error);
+    console.error("Create Listing Error:", error);
   }
 };
 
-// Fetch All Listings (General Use)
+// Fetch all listings (admin use)
 export const fetchListings = () => async (dispatch) => {
   try {
     const { data } = await axios.get(`${server}/listing/admin-all-listings`);
@@ -70,7 +68,7 @@ export const fetchListings = () => async (dispatch) => {
   }
 };
 
-// Fetch All Property Listings
+// Fetch all public property listings
 export const fetchAllPropertyListings = () => async (dispatch) => {
   try {
     dispatch({ type: GET_ALL_LISTINGS_PROPERTY_REQUEST });
@@ -98,7 +96,7 @@ export const deleteListing = (listingId) => async (dispatch) => {
     await axios.delete(`${server}/listing/delete-listing/${listingId}`, { withCredentials: true });
 
     dispatch({ type: DELETE_LISTING_SUCCESS, payload: listingId });
-    dispatch(fetchListings());  // Trigger fetching updated listings after deletion
+    dispatch(fetchListings());
   } catch (error) {
     dispatch({
       type: DELETE_LISTING_FAIL,
